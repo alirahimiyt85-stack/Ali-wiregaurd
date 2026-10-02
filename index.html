@@ -2201,29 +2201,35 @@
       const url = DEFAULT_WARP_WORKER_URL;
       apiDebug('Worker URL: '+url);
       const controller=new AbortController();
-      const timer=setTimeout(()=>controller.abort(),15000);
+      const timer=setTimeout(()=>controller.abort(),20000);
       try{
-        apiDebug('Sending GET request...');
-        const response=await fetch(url,{method:'GET',headers:{'Accept':'application/json,text/plain,*/*'},cache:'no-store',credentials:'omit',signal:controller.signal});
+        apiDebug('Generating WireGuard X25519 keypair...');
+        const keyPair = await generateBrowserWireGuardKeyPair();
+        apiDebug('Key method: '+keyPair.method);
+        apiDebug('Sending POST register request...');
+        const response=await fetch(url,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body:JSON.stringify({type:'Android',locale:'en_US',client:'ALIRAHIMI-WG',public_key:keyPair.publicKey}),
+          cache:'no-store',
+          credentials:'omit',
+          signal:controller.signal
+        });
         apiDebug('HTTP status: '+response.status+' '+response.statusText);
         const raw=await response.text();
         apiDebug('Response length: '+raw.length);
-        apiDebug('Response preview: '+raw.slice(0,300));
+        apiDebug('Response preview: '+raw.slice(0,500));
         if(!response.ok) throw new Error('HTTP_'+response.status);
-        let parsedJson=null;
+        let parsedJson;
+        try { parsedJson=JSON.parse(raw); } catch(e){ throw new Error('INVALID_JSON_RESPONSE'); }
         let configText='';
-        try{
-          parsedJson=JSON.parse(raw);
-          configText=typeof parsedJson.config==='string'?parsedJson.config:JSON.stringify(parsedJson);
-          if(!configText.includes('[Interface]')){
-            configText=parsedJson.config || raw;
-          }
-        }catch(e){configText=raw;}
+        if(typeof parsedJson.config==='string') configText=parsedJson.config;
+        else configText=buildConfigTextFromWarpPayload(parsedJson);
         if(!configText || !configText.includes('[Interface]')) throw new Error('NO_WIREGUARD_CONFIG_RETURNED');
         apiDebug('WireGuard config detected.');
-        return {parsedJson,configText,keyPair:null};
+        return {parsedJson,configText,keyPair};
       }catch(e){
-        apiDebug('FAILED: '+(e.message||e));
+        apiDebug('FAILED: '+(e.name==='AbortError'?'TIMEOUT':(e.message||e)));
         throw e;
       }finally{clearTimeout(timer);}
     }
