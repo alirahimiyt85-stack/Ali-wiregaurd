@@ -2200,20 +2200,14 @@
     async function fetchFromAPIs() {
       const url = DEFAULT_WARP_WORKER_URL;
       apiDebug('Worker URL: '+url);
-      const controller=new AbortController();
-      const timer=setTimeout(()=>controller.abort('worker_timeout_90000'),90000);
       try{
-        apiDebug('Generating WireGuard X25519 keypair...');
-        const keyPair = await generateBrowserWireGuardKeyPair();
-        apiDebug('Key method: '+keyPair.method);
-        apiDebug('Sending POST register request...');
+        apiDebug('Request method: GET');
+        apiDebug('Sending register request...');
         const response=await fetch(url,{
-          method:'POST',
-          headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body:JSON.stringify({type:'Android',locale:'en_US',client:'ALIRAHIMI-WG',public_key:keyPair.publicKey}),
+          method:'GET',
+          headers:{'Accept':'application/json'},
           cache:'no-store',
-          credentials:'omit',
-          signal:controller.signal
+          credentials:'omit'
         });
         apiDebug('HTTP status: '+response.status+' '+response.statusText);
         const raw=await response.text();
@@ -2227,12 +2221,12 @@
         else configText=buildConfigTextFromWarpPayload(parsedJson);
         if(!configText || !configText.includes('[Interface]')) throw new Error('NO_WIREGUARD_CONFIG_RETURNED');
         apiDebug('WireGuard config detected.');
-        return {parsedJson,configText,keyPair};
+        return {parsedJson,configText};
       }catch(e){
         apiDebug('FAILED: '+(e.name==='AbortError'?'TIMEOUT_OR_ABORT':(e.message||String(e))));
         apiDebug('This error happened before config parsing. Check Worker response and browser network tab.');
         throw e;
-      }finally{clearTimeout(timer);}
+      }
     }
 
     // Futuristic Cyberpunk Toast Notifications
