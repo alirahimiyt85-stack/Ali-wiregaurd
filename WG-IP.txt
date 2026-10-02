@@ -1,0 +1,7 @@
+# ALIRAHIMI WireGuard Endpoint Repository
+# One public IP:PORT per line. Replace/add your own targets.
+# IPv6 format: [2001:db8::1]:2408
+162.159.192.1:2408
+162.159.193.1:2408
+162.159.195.1:2408
+162.159.197.1:2408

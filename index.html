@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
+    <title>ALIRAHIMI // WireGuard Studio</title>
+    <meta name="description" content="ALIRAHIMI WireGuard Studio — secure WireGuard configuration generator, endpoint repository and latency scanner.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700&family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body.light {
+            --bg: #eef2f7;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --border: rgba(0, 0, 0, 0.08);
+            --border-accent-pub: rgba(6, 182, 212, 0.32);
+            --border-accent-priv: rgba(139, 92, 246, 0.28);
+            --glow-pub: rgba(6, 182, 212, 0.08);
+            --glow-priv: rgba(139, 92, 246, 0.06);
+            --accent-pub: #0891b2;
+            --accent-priv: #7c3aed;
+            --accent-pub-dim: rgba(6, 182, 212, 0.55);
+            --accent-priv-dim: rgba(139, 92, 246, 0.5);
+            --dot-pub: #06b6d4;
+            --dot-priv: #8b5cf6;
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --text-key: #334155;
+            --btn-bg: rgba(0, 0, 0, 0.04);
+            --btn-bg-hover: rgba(0, 0, 0, 0.08);
+            --btn-border: rgba(0, 0, 0, 0.1);
+            --btn-text: #64748b;
+            --btn-text-hover: #1e293b;
+            --btn-ok-bg: rgba(22, 163, 74, 0.1);
+            --btn-ok-border: rgba(22, 163, 74, 0.3);
+            --btn-ok-text: #16a34a;
+            --gen-bg: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.07));
+            --gen-bg-hover: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(139, 92, 246, 0.14));
+            --gen-border: rgba(6, 182, 212, 0.38);
+            --gen-border-hover: rgba(6, 182, 212, 0.58);
+            --gen-text: #0891b2;
+            --gen-glow: rgba(6, 182, 212, 0.16);
+            --status-bg: rgba(0, 0, 0, 0.03);
+            --status-border: rgba(0, 0, 0, 0.07);
+            --status-text: #64748b;
+            --status-dot: #16a34a;
+            --shield-color: #0891b2;
+            --shield-bg: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.07));
+            --shield-border: rgba(6, 182, 212, 0.22);
+            --orb1: rgba(6, 182, 212, 0.06);
+            --orb2: rgba(139, 92, 246, 0.04);
+            --orb3: rgba(99, 102, 241, 0.04);
+            --grid: rgba(6, 182, 212, 0.025);
+            --toggle-track: #cbd5e1;
+            --toggle-thumb: #ffffff;
+            --toggle-icon: #64748b;
+            --input-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        body.dark {
+            --bg: #060d1f;
+            --bg-card: rgba(15, 23, 42, 0.72);
+            --border: rgba(148, 163, 184, 0.1);
+            --border-accent-pub: rgba(56, 189, 248, 0.25);
+            --border-accent-priv: rgba(167, 139, 250, 0.25);
+            --glow-pub: rgba(56, 189, 248, 0.1);
+            --glow-priv: rgba(167, 139, 250, 0.1);
+            --accent-pub: #38bdf8;
+            --accent-priv: #a78bfa;
+            --accent-pub-dim: rgba(56, 189, 248, 0.6);
+            --accent-priv-dim: rgba(167, 139, 250, 0.6);
+            --dot-pub: #38bdf8;
+            --dot-priv: #a78bfa;
+            --text-primary: #f1f5f9;
+            --text-muted: rgba(148, 163, 184, 0.45);
+            --text-key: #cbd5e1;
+            --btn-bg: rgba(148, 163, 184, 0.08);
+            --btn-bg-hover: rgba(148, 163, 184, 0.15);
+            --btn-border: rgba(148, 163, 184, 0.18);
+            --btn-text: #94a3b8;
+            --btn-text-hover: #e2e8f0;
+            --btn-ok-bg: rgba(34, 197, 94, 0.14);
+            --btn-ok-border: rgba(34, 197, 94, 0.35);
+            --btn-ok-text: #22c55e;
+            --gen-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.12));
+            --gen-bg-hover: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(139, 92, 246, 0.2));
+            --gen-border: rgba(56, 189, 248, 0.3);
+            --gen-border-hover: rgba(56, 189, 248, 0.5);
+            --gen-text: #38bdf8;
+            --gen-glow: rgba(56, 189, 248, 0.15);
+            --status-bg: rgba(15, 23, 42, 0.5);
+            --status-border: rgba(148, 163, 184, 0.1);
+            --status-text: rgba(148, 163, 184, 0.45);
+            --status-dot: #22c55e;
+            --shield-color: #38bdf8;
+            --shield-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(139, 92, 246, 0.1));
+            --shield-border: rgba(56, 189, 248, 0.2);
+            --orb1: rgba(56, 189, 248, 0.07);
+            --orb2: rgba(167, 139, 250, 0.055);
+            --orb3: rgba(99, 102, 241, 0.045);
+            --grid: rgba(56, 189, 248, 0.028);
+            --toggle-track: #1e293b;
+            --toggle-thumb: #0f172a;
+            --toggle-icon: #64748b;
+            --input-bg: rgba(15, 23, 42, 0.4);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-x: hidden;
+            transition: background 0.38s, color 0.38s;
+            line-height: 1.5;
+        }
+
+        body.lang-fa { 
+            font-family: "Vazirmatn", sans-serif; 
+        }
+        body.lang-en { 
+            font-family: "Share Tech Mono", monospace; 
+        }
+
+        .modern-input, 
+        .textarea1, 
+        .endpoint-item, 
+        .api-info-panel, 
+        .option-sublabel {
+            font-family: 'Share Tech Mono', monospace !important;
+        }
+
+        .lang-text-btn,
+        .api-info-title,
+        .generate-btn {
+            font-family: 'Orbitron', sans-serif !important;
+            letter-spacing: 1px;
+        }
+
+        .main-title-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .main-title-primary {
+            font-family: 'Orbitron', sans-serif !important;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            line-height: 1.1;
+            transition: color 0.35s, text-shadow 0.35s;
+        }
+
+        .main-title-secondary {
+            font-family: 'Share Tech Mono', monospace !important;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--text-muted);
+            transition: color 0.35s;
+        }
+
+        body.dark .main-title-primary {
+            background: linear-gradient(90deg, #38bdf8 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.35));
+        }
+
+        body.light .main-title-primary {
+            background: linear-gradient(90deg, #0891b2 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 1px 4px rgba(6, 182, 212, 0.15));
+        }
+
+        body.lang-en .section-title, 
+        body.lang-en .settings-group-title {
+            font-family: 'Orbitron', sans-serif !important;
+            letter-spacing: 1.5px;
+        }
+
+        body.lang-fa .section-title, 
+        body.lang-fa .settings-group-title {
+            font-family: 'Vazirmatn', sans-serif !important;
+            font-weight: 700;
+        }
+
+        .rtl-text { direction: rtl; }
+
+        .container-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 54px 54px;
+            transition: background-image 0.4s;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(68px);
+            pointer-events: none;
+            z-index: 0;
+            transition: background 0.5s;
+        }
+
+        .orb-1 { width: 280px; height: 280px; top: -60px; left: -40px; background: var(--orb1); }
+        .orb-2 { width: 220px; height: 220px; bottom: -45px; right: -25px; background: var(--orb2); }
+        .orb-3 { width: 150px; height: 150px; top: 42%; left: 58%; background: var(--orb3); }
+
+        .wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lang-switcher-text {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+        }
+
+        .theme-toggle-container {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+        }
+
+        .lang-text-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 6px;
+            color: var(--btn-text);
+            padding: 0.35rem 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-text-btn:hover {
+            background: var(--btn-bg-hover);
+            color: var(--btn-text-hover);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 0;
+        }
+
+        .theme-icon {
+            color: var(--toggle-icon);
+            display: flex;
+            transition: opacity 0.3s;
+        }
+
+        .toggle-track {
+            width: 42px;
+            height: 22px;
+            border-radius: 11px;
+            background: var(--toggle-track);
+            position: relative;
+            transition: background 0.35s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.18);
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            top: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--toggle-thumb);
+            transition: left 0.32s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
+        }
+
+        body.light .toggle-thumb { left: 1px; box-shadow: 0 1px 3px rgba(0,0,0,0.22); }
+        body.dark .toggle-thumb { left: 21px; box-shadow: 0 1px 5px rgba(0,0,0,0.45); }
+        body.light .theme-icon.sun { opacity: 0.8; }
+        body.light .theme-icon.moon { opacity: 0.35; }
+        body.dark .theme-icon.sun { opacity: 0.35; }
+        body.dark .theme-icon.moon { opacity: 0.8; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .container-columns {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .container, .container2 {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .container.active-accent {
+            border-color: var(--border-accent-pub);
+            box-shadow: 0 0 0 1px var(--glow-pub) inset, 0 3px 18px rgba(0,0,0,0.08);
+        }
+
+        .container2.active-accent {
+            border-color: var(--border-accent-priv);
+            box-shadow: 0 0 0 1px var(--glow-priv) inset, 0 3px 18px rgba(0,0,0,0.08);
+        }
+
+        .corner-accent {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .corner-top-left { top: 0; left: 0; border-radius: 12px 0 0 0; }
+        .corner-bottom-right { bottom: 0; right: 0; border-radius: 0 0 12px 0; }
+
+        .container2 .corner-top-left {
+            border-top: 2px solid var(--accent-priv-dim);
+            border-left: 2px solid var(--accent-priv-dim);
+        }
+        .container2 .corner-bottom-right {
+            border-bottom: 2px solid var(--accent-priv-dim);
+            border-right: 2px solid var(--accent-priv-dim);
+        }
+
+        .container .corner-top-left {
+            border-top: 2px solid var(--accent-pub-dim);
+            border-left: 2px solid var(--accent-pub-dim);
+        }
+        .container .corner-bottom-right {
+            border-bottom: 2px solid var(--accent-pub-dim);
+            border-right: 2px solid var(--accent-pub-dim);
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .settings-group-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-priv);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.875rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button, .convert-btn {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover, .convert-btn:hover {
+            background: var(--btn-bg-hover);
+            color: var(--btn-text-hover);
+            border-color: var(--text-muted);
+        }
+
+        button:disabled, .convert-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .generate-btn {
+            background: var(--gen-bg);
+            border: 1px solid var(--gen-border);
+            color: var(--gen-text);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: none;
+        }
+
+        .generate-btn:hover {
+            background: var(--gen-bg-hover);
+            border-color: var(--gen-border-hover);
+            box-shadow: 0 0 20px var(--gen-glow);
+            color: var(--gen-text);
+        }
+
+        .cyber-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-top-color: var(--gen-text);
+            border-right-color: var(--gen-text);
+            border-radius: 50%;
+            animation: cyber-spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            position: relative;
+        }
+        
+        .cyber-spinner::after {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid var(--accent-pub-dim);
+            border-radius: 50%;
+            animation: cyber-pulse 1.2s ease-out infinite;
+        }
+
+        @keyframes cyber-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes cyber-pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .modern-secondary-btn {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--btn-border);
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        .modern-secondary-btn:hover {
+            background: var(--btn-bg-hover);
+            color: var(--btn-text-hover);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .download-btn {
+            flex: 1;
+            height: 48px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .download-btn:not(.hidden) {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .download-btn:not(.hidden):hover {
+            background: var(--btn-bg-hover);
+            color: var(--text-primary);
+            border-color: var(--accent-pub);
+            box-shadow: 0 0 10px var(--glow-pub);
+        }
+
+        /* Cyber Radios */
+        .junk-options-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .junk-options-row label {
+            flex: 1;
+        }
+
+        .modern-radio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.6rem 0.25rem;
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+            height: 100%;
+        }
+
+        .modern-radio:hover {
+            background: var(--btn-bg-hover);
+        }
+
+        .modern-radio:has(.radio:checked) {
+            background: var(--glow-priv);
+            border-color: var(--border-accent-priv);
+        }
+
+        .radio-fakeradio {
+            width: 10px;
+            height: 10px;
+            border: 1.5px solid var(--btn-text);
+            border-radius: 50%;
+            position: relative;
+            transition: border-color 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .radio:checked + .radio-fakeradio {
+            border-color: var(--accent-priv);
+        }
+
+        .radio:checked + .radio-fakeradio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: var(--accent-priv);
+            border-radius: 50%;
+        }
+
+        .option-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1px;
+        }
+
+        .option-label {
+            color: var(--text-primary);
+            font-size: 0.73rem;
+            font-weight: 700;
+        }
+
+        .option-sublabel {
+            font-size: 0.58rem;
+            color: var(--text-muted);
+        }
+
+        /* Cyber Checkbox */
+        .modern-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--glow-priv);
+            border: 1px solid var(--border-accent-priv);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+            margin-bottom: 0.875rem;
+        }
+
+        .modern-checkbox:hover {
+            background: rgba(167, 139, 250, 0.12);
+        }
+
+        .modern-checkbox .checkbox {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--btn-text);
+            border-radius: 3px;
+            position: relative;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:checked + .checkmark {
+            background: var(--accent-priv);
+            border-color: var(--accent-priv);
+        }
+
+        input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -52%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        /* Cyber Inputs styling */
+        .custom-inputs {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background: var(--input-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .custom-inputs-row {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            flex: 1;
+        }
+
+        .input-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: left;
+            text-transform: uppercase;
+        }
+        
+        body.lang-fa .input-label {
+            text-align: right;
+        }
+
+        .modern-input {
+            padding: 0.55rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--accent-pub);
+            box-shadow: 0 0 10px var(--glow-pub);
+        }
+
+        .container2 .modern-input:focus {
+            border-color: var(--accent-priv);
+            box-shadow: 0 0 10px var(--glow-priv);
+        }
+
+        /* Clean IPs List panel style */
+        .endpoint-list-box {
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--input-bg);
+            padding: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .endpoint-list-box::-webkit-scrollbar { width: 4px; }
+        .endpoint-list-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .endpoint-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            text-align: left;
+        }
+
+        .endpoint-item:hover {
+            background: var(--btn-bg-hover);
+            color: var(--text-primary);
+        }
+
+        .endpoint-item.selected {
+            background: var(--glow-pub);
+            border: 1px solid var(--border-accent-pub);
+            color: var(--accent-pub);
+            font-weight: 700;
+        }
+
+        .endpoint-tick {
+            font-size: 0.95rem;
+            color: var(--status-dot);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .endpoint-item.selected .endpoint-tick { opacity: 1; }
+
+        /* Output Textarea styled as mechanical terminal console - Expandable dynamically */
+        .textarea1 {
+            width: 100%;
+            height: 80px; /* Initially small as requested */
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            color: var(--text-key);
+            font-size: 0.83rem;
+            resize: vertical;
+            margin-bottom: 0.5rem;
+            transition: height 0.4s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.15s ease, box-shadow 0.15s ease;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+
+        .textarea1.expanded {
+            height: 380px; /* Fully opened when config generated */
+        }
+
+        .textarea1:focus {
+            outline: none;
+            border-color: var(--accent-pub);
+            box-shadow: 0 0 10px var(--glow-pub);
+        }
+
+        /* API Account panel custom matrix styling */
+        .api-info-panel {
+            padding: 0.75rem 1rem;
+            background: var(--input-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-accent-pub);
+            box-shadow: 0 0 8px var(--glow-pub);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            text-align: left !important;
+            direction: ltr !important;
+        }
+
+        .api-info-title {
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--accent-pub);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .api-info-row {
+            margin-bottom: 0.25rem;
+            word-break: break-all;
+        }
+
+        /* Dynamic Footer with signature above social links & reduced margin-top */
+        .footer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 0.25rem; /* Extremely close to the config box as requested */
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+
+        .credit-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-align: center;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Social icons size & invert filters for Dark/Light mode compatible with black Icons8 png */
+        .social-icon {
+            width: 22px;
+            height: 22px;
+            transition: filter 0.3s;
+        }
+        body.dark .social-icon {
+            filter: invert(1) brightness(2.5); /* Invert black Icons8 icons to white */
+        }
+        body.light .social-icon {
+            filter: none; /* Keep Icons8 black black in light mode */
+        }
+
+        /* Fixed bottom-left trigger button style */
+        .cyber-download-trigger {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s, background 0.3s;
+        }
+        .cyber-download-trigger:hover {
+            border-color: var(--border-accent-pub);
+            box-shadow: 0 0 12px var(--glow-pub);
+            transform: translateY(-2px);
+            background: var(--btn-bg-hover);
+        }
+
+        /* Cyber Modal Overlay */
+        .cyber-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .cyber-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Cyber Modal Card */
+        .cyber-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 320px;
+            max-width: 90%;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .cyber-modal-overlay.open .cyber-modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .modal-header .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent-pub);
+            letter-spacing: 1px;
+        }
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+        
+        /* Modal Link Items */
+        .modal-link-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+        .modal-link-item:hover {
+            border-color: var(--border-accent-pub);
+            box-shadow: 0 0 10px var(--glow-pub);
+            transform: translateX(3px);
+        }
+        
+        .modal-icon {
+            width: 28px;
+            height: 28px;
+            transition: filter 0.3s;
+        }
+        body.dark .modal-icon {
+            filter: invert(1) brightness(2.5); /* Invert black Icons8 icons to white */
+        }
+        body.light .modal-icon {
+            filter: none;
+        }
+        
+        .modal-link-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .hidden, .hidden-input, .radio { display: none; }
+
+        @media (max-width: 768px) {
+            .wrapper { padding: 3.5rem 1rem 1.5rem; }
+            .lang-switcher-text { top: 1rem; left: 1rem; }
+            .theme-toggle-container { top: 1rem; right: 1rem; }
+            .cyber-download-trigger { bottom: 1rem; left: 1rem; }
+            .container-columns { display: flex; flex-direction: column; gap: 1.25rem; }
+            .container, .container2 { padding: 1.25rem; }
+            .main-title-primary { font-size: 1.5rem; }
+            .main-title-secondary { font-size: 0.75rem; letter-spacing: 3px; }
+        }
+    
+        /* ============================================================
+           ALIRAHIMI // Obsidian Neon UI
+           ============================================================ */
+        body.dark {
+            --bg: #030508;
+            --bg-card: rgba(7, 10, 15, 0.92);
+            --border: rgba(255,255,255,0.075);
+            --border-accent-pub: rgba(0,245,212,0.38);
+            --border-accent-priv: rgba(255,43,214,0.32);
+            --glow-pub: rgba(0,245,212,0.09);
+            --glow-priv: rgba(255,43,214,0.08);
+            --accent-pub: #00f5d4;
+            --accent-priv: #ff2bd6;
+            --accent-pub-dim: rgba(0,245,212,0.62);
+            --accent-priv-dim: rgba(255,43,214,0.58);
+            --dot-pub: #00f5d4;
+            --dot-priv: #ff2bd6;
+            --text-primary: #f4f7f8;
+            --text-muted: #77818b;
+            --text-key: #d7dde1;
+            --btn-bg: rgba(255,255,255,0.035);
+            --btn-bg-hover: rgba(255,255,255,0.07);
+            --btn-border: rgba(255,255,255,0.11);
+            --btn-text: #8d98a2;
+            --btn-text-hover: #ffffff;
+            --gen-bg: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(255,43,214,0.08));
+            --gen-bg-hover: linear-gradient(135deg, rgba(0,245,212,0.16), rgba(255,43,214,0.15));
+            --gen-border: rgba(0,245,212,0.42);
+            --gen-border-hover: rgba(0,245,212,0.72);
+            --gen-text: #7affeb;
+            --gen-glow: rgba(0,245,212,0.18);
+            --status-bg: rgba(255,255,255,0.025);
+            --status-border: rgba(255,255,255,0.08);
+            --status-text: #74808a;
+            --status-dot: #5df6b8;
+            --shield-color: #00f5d4;
+            --shield-bg: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(255,43,214,0.06));
+            --shield-border: rgba(0,245,212,0.22);
+            --orb1: rgba(0,245,212,0.08);
+            --orb2: rgba(255,43,214,0.07);
+            --orb3: rgba(129,77,255,0.045);
+            --grid: rgba(0,245,212,0.035);
+            --toggle-track: #10161d;
+            --toggle-thumb: #e9fff9;
+            --toggle-icon: #64717b;
+            --input-bg: rgba(5,8,12,0.92);
+        }
+        body.light {
+            --bg: #edf1f3;
+            --bg-card: rgba(255,255,255,0.94);
+            --border: rgba(16,24,32,0.10);
+            --border-accent-pub: rgba(0,153,135,0.34);
+            --border-accent-priv: rgba(196,0,158,0.24);
+            --glow-pub: rgba(0,153,135,0.07);
+            --glow-priv: rgba(196,0,158,0.055);
+            --accent-pub: #008f7d;
+            --accent-priv: #b80098;
+            --accent-pub-dim: rgba(0,143,125,0.62);
+            --accent-priv-dim: rgba(184,0,152,0.55);
+            --dot-pub: #00a98e;
+            --dot-priv: #d20db4;
+            --text-primary: #0f1720;
+            --text-muted: #68737e;
+            --text-key: #1b2630;
+            --btn-bg: rgba(20,30,40,0.035);
+            --btn-bg-hover: rgba(20,30,40,0.07);
+            --btn-border: rgba(20,30,40,0.11);
+            --btn-text: #596671;
+            --btn-text-hover: #0f1720;
+            --gen-bg: linear-gradient(135deg, rgba(0,153,135,0.08), rgba(184,0,152,0.06));
+            --gen-bg-hover: linear-gradient(135deg, rgba(0,153,135,0.15), rgba(184,0,152,0.11));
+            --gen-border: rgba(0,143,125,0.42);
+            --gen-border-hover: rgba(0,143,125,0.66);
+            --gen-text: #007a6c;
+            --gen-glow: rgba(0,153,135,0.12);
+            --status-bg: rgba(20,30,40,0.025);
+            --status-border: rgba(20,30,40,0.08);
+            --status-text: #68737e;
+            --status-dot: #0aa56e;
+            --shield-color: #008f7d;
+            --shield-bg: linear-gradient(135deg, rgba(0,153,135,0.06), rgba(184,0,152,0.05));
+            --shield-border: rgba(0,143,125,0.20);
+            --orb1: rgba(0,153,135,0.06);
+            --orb2: rgba(184,0,152,0.04);
+            --orb3: rgba(99,60,180,0.035);
+            --grid: rgba(0,153,135,0.022);
+            --toggle-track: #d6dde2;
+            --toggle-thumb: #ffffff;
+            --toggle-icon: #66737f;
+            --input-bg: rgba(255,255,255,0.96);
+        }
+
+        .alirihimi-header { margin-bottom: 1.5rem; }
+        .alirihimi-kicker {
+            display:inline-block;
+            margin-bottom: 0.55rem;
+            font: 700 0.66rem/1 "Share Tech Mono",monospace;
+            letter-spacing: 0.32em;
+            color: var(--accent-pub);
+            opacity: 0.88;
+        }
+        .main-title-primary {
+            position:relative;
+            font-size: clamp(2.3rem, 7vw, 4.5rem);
+            letter-spacing: 0.16em;
+            text-shadow: 0 0 18px rgba(0,245,212,.18), 0 0 36px rgba(255,43,214,.12);
+        }
+        .main-title-primary::before,
+        .main-title-primary::after {
+            content: attr(data-text);
+            position:absolute;
+            inset:0;
+            pointer-events:none;
+            opacity:0.14;
+            mix-blend-mode:screen;
+        }
+        .main-title-primary::before { transform: translate(2px,-1px); color:#ff2bd6; clip-path: inset(0 0 58% 0); }
+        .main-title-primary::after { transform: translate(-2px,1px); color:#00f5d4; clip-path: inset(62% 0 0 0); }
+        .main-title-secondary { color:var(--text-muted); letter-spacing:0.34em; }
+        .header-intro {
+            max-width: 720px;
+            margin: 0.9rem auto 0;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            line-height: 1.9;
+        }
+
+        .alirihimi-toolkit { margin-top: 1.4rem; }
+        .toolkit-grid { display:grid; grid-template-columns: 1.35fr 0.65fr; gap:1.15rem; }
+        .toolkit-panel {
+            background: var(--bg-card);
+            border:1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.15rem;
+            position:relative;
+            overflow:hidden;
+            box-shadow: 0 18px 40px rgba(0,0,0,.10);
+        }
+        .toolkit-panel::after {
+            content:"";
+            position:absolute;
+            left:0; right:0; top:0; height:1px;
+            background:linear-gradient(90deg, transparent, var(--accent-pub), transparent);
+            opacity:.55;
+        }
+        .toolkit-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+        .toolkit-head h2 { margin-top:.25rem; font-size:1.05rem; }
+        .panel-eyebrow {
+            font:700 .64rem/1 "Share Tech Mono",monospace;
+            letter-spacing:.2em;
+            color:var(--accent-pub);
+        }
+        .status-badge,.counter-badge,.secure-dot {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-height:24px; padding:0 .55rem; border-radius:999px;
+            border:1px solid var(--status-border);
+            background:var(--status-bg);
+            color:var(--status-text);
+            font:700 .62rem/1 "Share Tech Mono",monospace;
+            letter-spacing:.12em;
+        }
+        .counter-badge { min-width:28px; color:var(--accent-pub); border-color:var(--border-accent-pub); }
+        .secure-dot { color:var(--accent-pub); border-color:var(--border-accent-pub); }
+        .scanner-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap:1rem; }
+        .repo-box,.scan-control-box {
+            border:1px solid var(--border);
+            background:var(--input-bg);
+            border-radius:12px;
+            padding:.85rem;
+        }
+        .subpanel-head { display:flex; align-items:center; justify-content:space-between; gap:.7rem; margin-bottom:.65rem; color:var(--text-key); font-weight:700; font-size:.78rem; }
+        .repo-textarea {
+            width:100%; min-height:148px; resize:vertical; padding:.75rem;
+            background:transparent; color:var(--text-primary);
+            border:1px dashed var(--border); border-radius:9px;
+            font: .77rem/1.7 "Share Tech Mono",monospace;
+            outline:none;
+        }
+        .repo-textarea:focus { border-color:var(--accent-pub); box-shadow:0 0 0 3px var(--glow-pub); }
+        .warp-url-box { min-height:98px; }
+        .inline-actions { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.65rem; }
+        .mini-btn {
+            width:auto; min-width:0; padding:.48rem .68rem; border-radius:7px;
+            font:700 .68rem/1 "Share Tech Mono",monospace;
+        }
+        .file-btn { display:inline-flex; cursor:pointer; }
+        .danger-mini { color:#ff718f; border-color:rgba(255,113,143,.25); }
+        .scan-main-btn { border-color:var(--border-accent-pub); color:var(--accent-pub); }
+        .repo-note,.api-safety-note,.warp-api-copy {
+            margin-top:.6rem; color:var(--text-muted); font-size:.67rem; line-height:1.8;
+        }
+        .api-field { margin-bottom:.55rem; }
+        .api-field label { display:block; margin-bottom:.28rem; color:var(--text-muted); font-size:.67rem; }
+        .api-field-row { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; }
+        .scanner-progress-wrap { margin-top:.8rem; padding:.6rem .75rem; border:1px solid var(--border); border-radius:10px; background:var(--status-bg); }
+        .scanner-progress-track { height:6px; background:rgba(127,127,127,.12); border-radius:999px; overflow:hidden; }
+        .scanner-progress-bar { width:0%; height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent-pub),var(--accent-priv)); transition:width .18s ease; }
+        .scanner-progress-meta { display:flex; justify-content:space-between; gap:1rem; margin-top:.45rem; font: .64rem/1 "Share Tech Mono",monospace; color:var(--text-muted); }
+        .scanner-results { margin-top:.8rem; display:grid; gap:.4rem; max-height:330px; overflow:auto; padding-right:2px; }
+        .scan-row {
+            display:grid; grid-template-columns: minmax(0,1fr) 74px 80px 86px;
+            gap:.45rem; align-items:center; padding:.62rem .7rem;
+            border:1px solid var(--border); border-radius:9px;
+            background:var(--input-bg); cursor:pointer;
+            transition:transform .16s ease,border-color .16s ease,background .16s ease;
+        }
+        .scan-row:hover { transform:translateX(-2px); border-color:var(--border-accent-pub); background:var(--btn-bg-hover); }
+        .scan-target { min-width:0; font:.76rem "Share Tech Mono",monospace; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .scan-pill { text-align:center; border:1px solid var(--border); padding:.28rem .35rem; border-radius:999px; font:700 .61rem "Share Tech Mono",monospace; color:var(--text-muted); }
+        .scan-pill.ok { color:var(--accent-pub); border-color:var(--border-accent-pub); }
+        .scan-pill.best { color:#fff; background:linear-gradient(90deg,var(--accent-pub),var(--accent-priv)); border:none; }
+        .scan-empty { padding:1rem; border:1px dashed var(--border); border-radius:9px; text-align:center; color:var(--text-muted); font-size:.72rem; line-height:1.8; }
+        .about-panel { grid-column:2; grid-row:1 / span 1; }
+        .creator-mark {
+            width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+            border:1px solid var(--border-accent-pub); color:var(--accent-pub); font:800 .9rem/1 "Orbitron",sans-serif;
+            box-shadow:inset 0 0 18px var(--glow-pub),0 0 16px var(--glow-pub);
+        }
+        .about-copy { color:var(--text-muted); font-size:.75rem; line-height:2; }
+        .about-copy strong { color:var(--text-primary); }
+        .about-capabilities { display:grid; grid-template-columns:1fr; gap:.45rem; margin-top:.85rem; }
+        .cap-item { display:grid; grid-template-columns:28px 1fr; gap:.5rem; align-items:center; padding:.52rem .58rem; border:1px solid var(--border); border-radius:8px; background:var(--input-bg); }
+        .cap-item span { color:var(--accent-pub); font:700 .62rem "Share Tech Mono",monospace; }
+        .cap-item b { color:var(--text-key); font-size:.68rem; }
+        .warp-api-panel { grid-column:1 / -1; }
+        .mode-toggle-card { margin-bottom:.45rem; }
+        .mode-hint { margin:-.05rem 0 .85rem; color:var(--text-muted); font-size:.65rem; line-height:1.7; padding-right:.2rem; }
+        .alirihimi-footer { margin-top:1.15rem; padding:.5rem 0 1rem; }
+        .alirihimi-footer .credit-text { font-family:"Share Tech Mono",monospace; letter-spacing:.16em; color:var(--text-muted); }
+        body.dark .container, body.dark .container2, body.dark .toolkit-panel { box-shadow: 0 18px 50px rgba(0,0,0,.24); }
+        @media (max-width: 900px) {
+            .toolkit-grid { grid-template-columns:1fr; }
+            .about-panel,.warp-api-panel { grid-column:auto; grid-row:auto; }
+            .scanner-grid { grid-template-columns:1fr; }
+        }
+        @media (max-width: 560px) {
+            .main-title-primary { letter-spacing:.10em; font-size:2.1rem; }
+            .main-title-secondary { letter-spacing:.20em; }
+            .alirihimi-kicker { font-size:.55rem; letter-spacing:.18em; }
+            .header-intro { font-size:.69rem; }
+            .toolkit-panel { padding:.9rem; }
+            .api-field-row { grid-template-columns:1fr; }
+            .scan-row { grid-template-columns:1fr 60px 66px; }
+            .scan-row .scan-use-btn { grid-column:1 / -1; }
+        }
+
+    </style>
+</head>
+<body class="lang-fa dark">
+  <div class="container-wrapper">
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="wrapper">
+      <!-- Absolute Corner Controls -->
+      <div class="lang-switcher-text">
+          <button id="lang-toggle-btn" class="lang-text-btn" onclick="toggleLanguage()">En</button>
+      </div>
+
+      <div class="theme-toggle-container">
+          <button class="theme-toggle" id="themeToggle">
+            <span class="theme-icon sun">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </span>
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+            <span class="theme-icon moon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </span>
+          </button>
+      </div>
+
+      <!-- Main Header Title -->
+      <div class="header">
+          <div class="main-title-group">
+              <h1 class="main-title-primary" data-text="ALIRAHIMI">ALIRAHIMI</h1>
+              <span class="main-title-secondary">WIREGUARD // CONFIG STUDIO</span>
+          </div>
+      </div>
+      
+      <div class="container-columns">
+          <!-- Right Column: Settings Container (Inputs & Customization) -->
+          <div class="container2 active-accent">
+              <div class="corner-accent corner-top-left"></div>
+              <div class="corner-accent corner-bottom-right"></div>
+
+              <div class="section-title" data-i18n="advanced_settings">تنظیمات پیشرفته WireGuard</div>
+
+              <!-- Custom Endpoint Selection & MTU Layout -->
+              <div class="custom-inputs" style="margin-bottom: 1.25rem;">
+                  <!-- Endpoint List Box populated dynamically with selection ticks -->
+                  <div id="endpoint_list_box" class="endpoint-list-box">
+                      <div id="loading_ips_msg" style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;" data-i18n="loading_ips">در حال دریافت ای پی ها ...</div>
+                  </div>
+
+                  <div style="display: flex; gap: 0.75rem;">
+                      <div style="flex: 2; display: flex; flex-direction: column; gap: 0.25rem;">
+                          <label class="input-label" style="font-size: 0.75rem;">Endpoint</label>
+                          <input id="custom_endpoint" class="modern-input" style="text-align: left;" placeholder="engage.cloudflareclient.com:2408">
+                      </div>
+                      <div style="flex: 1; display: flex; flex-direction: column; gap: 0.25rem;">
+                          <label class="input-label" style="font-size: 0.75rem;">MTU</label>
+                          <input id="custom_mtu" class="modern-input" placeholder="1280" type="number">
+                      </div>
+                  </div>
+              </div>
+
+              <div class="musor1">
+                  <div class="settings-group-title" data-i18n="junk_packet_settings">
+                    <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--accent-priv); display: inline-block;"></span>
+                    پارامترهای پیشرفتهٔ ترافیک
+                  </div>
+
+                  <!-- Three Radio Options Aligned in One Row -->
+                  <div class="junk-options-row">
+                      <label>
+                        <div class="checkbox modern-radio">
+                          <input type="radio" id="junk1" name="junk" class="radio" checked/>
+                          <span class="radio-fakeradio"></span>
+                          <div class="option-info">
+                              <span class="option-label" data-i18n="light_option">سبک</span>
+                              <span class="option-sublabel">jc=3, jmin=1, jmax=3</span>
+                          </div>
+                        </div>
+                      </label>
+                      
+                      <label>
+                        <div class="checkbox modern-radio">
+                          <input type="radio" id="junk2" name="junk" class="radio" />
+                          <span class="radio-fakeradio"></span>
+                          <div class="option-info">
+                              <span class="option-label" data-i18n="heavy_option">سنگین</span>
+                              <span class="option-sublabel">jc=5, jmin=10, jmax=40</span>
+                          </div>
+                        </div>
+                      </label>
+                      
+                      <label>
+                        <div class="checkbox modern-radio">
+                          <input type="radio" id="junk3" name="junk" class="radio" />
+                          <span class="radio-fakeradio"></span>
+                          <div class="option-info">
+                              <span class="option-label" data-i18n="custom_settings">دلخواه</span>
+                              <span class="option-sublabel">سفارشی</span>
+                          </div>
+                        </div>
+                      </label>
+                  </div>
+
+                  <!-- ALIRAHIMI Extended Toggle -->
+                  <label class="modern-checkbox" id="extended15-toggle-label">
+                      <div class="checkbox">
+                          <input type="checkbox" id="enableExtended15" class="hidden"/>
+                          <span class="checkmark"></span>
+                          <span class="option-label extended15-label" style="margin-right: 8px; margin-left: 8px;" data-i18n="enable_15">فعالسازی پارامترهای ALIRAHIMI 1.5 (I1-I5)</span>
+                      </div>
+                  </label>
+              
+                  <!-- Custom Junk Packet Inputs (Horizontal Flex Row) -->
+                  <div id="standard-junk-inputs" class="custom-inputs hidden">
+                      <div class="custom-inputs-row">
+                          <div class="input-group">
+                              <label class="input-label">jc</label>
+                              <input id="jc1" class="modern-input" type="number" placeholder="3">
+                          </div>
+                          <div class="input-group">
+                              <label class="input-label">jmin</label>
+                              <input id="jmin1" class="modern-input" type="number" placeholder="1">
+                          </div>
+                          <div class="input-group">
+                              <label class="input-label">jmax</label>
+                              <input id="jmax1" class="modern-input" type="number" placeholder="3">
+                          </div>
+                      </div>
+                      <button class="randombtn modern-secondary-btn" id="randomJunkBtn" style="width: 100%;">
+                          <span data-i18n="generate_random">تولید مقادیر تصادفی</span>
+                      </button>
+                  </div>
+
+                  <!-- ALIRAHIMI Extended I1-I5 Inputs -->
+                  <div id="extended15-inputs" class="custom-inputs hidden extended15-inputs-panel">
+                      <div class="settings-group-title extended15-group-title" data-i18n="extended_params">پارامترهای Extended I1-I5</div>
+                      <small class="extended15-doc" style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.7rem;">
+                          <span data-i18n="extended_note_prefix">برای جزییات بیشتر مستندات ALIRAHIMI را </span>
+                          <a target="_blank" href="https://www.wireguard.com/quickstart/" style="color: var(--accent-pub);">مطالعه کنید</a>.
+                      </small>
+                      <div class="input-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                          <label class="input-label" style="width: 40px;">I1 =</label>
+                          <input id="i1_1" class="modern-input" placeholder="مقدار پیش‌فرض یا خالی">
+                      </div>
+                      <div class="input-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                          <label class="input-label" style="width: 40px;">I2 =</label>
+                          <input id="i2_1" class="modern-input" placeholder="مقدار I2">
+                      </div>
+                      <div class="input-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                          <label class="input-label" style="width: 40px;">I3 =</label>
+                          <input id="i3_1" class="modern-input" placeholder="مقدار I3">
+                      </div>
+                      <div class="input-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                          <label class="input-label" style="width: 40px;">I4 =</label>
+                          <input id="i4_1" class="modern-input" placeholder="مقدار I4">
+                      </div>
+                      <div class="input-row" style="display: flex; align-items: center; gap: 0.5rem;">
+                          <label class="input-label" style="width: 40px;">I5 =</label>
+                          <input id="i5_1" class="modern-input" placeholder="مقدار I5">
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Left Column: Action & Output Container -->
+          <div class="container active-accent">
+              <div class="corner-accent corner-top-left"></div>
+              <div class="corner-accent corner-bottom-right"></div>
+
+              <div class="section-title" data-i18n="section_configuration">ساخت و خروجی کانفیگ</div>
+
+              <div class="custom-inputs" style="margin-bottom:1rem;">
+                <div class="input-group" style="width:100%;">
+                  <label class="input-label" for="config_name" data-i18n="config_name">نام کانفیگ / نام کاربر</label>
+                  <input id="config_name" class="modern-input" type="text" maxlength="64" autocomplete="off" spellcheck="false"
+                    placeholder="ALIRAHIMI" data-i18n-placeholder="config_name_placeholder">
+                  <div style="margin-top:.35rem;font-size:.64rem;color:var(--text-muted);text-align:right;" data-i18n="config_name_note">این نام هم در نام فایل .conf می‌آید و هم به‌صورت Comment داخل کانفیگ ثبت می‌شود؛ داخل [Interface] به‌عنوان گزینه ناشناخته قرار نمی‌گیرد.</div>
+                </div>
+              </div>
+
+              <!-- Single Trigger Button -->
+              <button id="main_gen_btn" onclick="generateConfig()" class="convert-btn generate-btn" disabled>
+                  <span class="refresh-icon">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+                          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                      </svg>
+                  </span>
+                  <span id="gen_btn_inner_text" data-i18n="fetch_warp">ساخت کانفیگ استاندارد WireGuard</span>
+              </button>
+              
+              <textarea id="yamlOutput" class="textarea1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                          placeholder="کانفیگ ساخته شده اینجا نمایش داده می‌شود..." data-i18n-placeholder="converted_placeholder" readonly></textarea>
+
+              <!-- API Account Information Section (Forced Left Aligned & LTR English) -->
+              <div id="account_info_container" class="api-info-panel hidden">
+                  <div class="api-info-title">Account Details (WARP API)</div>
+                  <div id="account_details_list"></div>
+              </div>
+
+              <div class="button-container">
+                  <!-- Icon Only Download Button -->
+                  <button class="download-btn hidden" id="downloadBtn" title="Download (.conf)">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="7 10 12 15 17 10"></polyline>
+                          <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                  </button>
+                  <!-- Icon Only Copy Button -->
+                  <button class="download-btn hidden" id="copyBtn" title="Copy To Clipboard">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                  </button>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALIRAHIMI toolkit: repository, scanner, WARP API settings and about -->
+  <section class="alirihimi-toolkit" aria-label="ALIRAHIMI tools">
+    <div class="toolkit-grid">
+      <div class="toolkit-panel scanner-panel">
+        <div class="toolkit-head">
+          <div>
+            <span class="panel-eyebrow">WG ENDPOINT MATRIX</span>
+            <h2 data-i18n="scanner_title">مخزن و اسکنر Endpoint وایرگارد</h2>
+          </div>
+          <span id="scanner_status_badge" class="status-badge">READY</span>
+        </div>
+
+        <div class="scanner-grid">
+          <div class="repo-box">
+            <div class="subpanel-head">
+              <span data-i18n="repo_title">مخزن IP:PORT</span>
+              <span id="repo_count" class="counter-badge">0</span>
+            </div>
+            <textarea id="wg_ip_repo_input" class="repo-textarea" spellcheck="false" autocomplete="off"
+              placeholder="162.159.x.x:2408&#10;188.114.x.x:2408&#10;# هر خط یک Endpoint"></textarea>
+            <div class="inline-actions">
+              <label class="mini-btn file-btn">
+                <input type="file" id="wg_ip_file" accept=".txt,.list,text/plain" hidden>
+                <span data-i18n="import_repo">ورود TXT</span>
+              </label>
+              <button type="button" class="mini-btn" id="save_repo_btn" data-i18n="save_repo">ذخیره مخزن</button>
+              <button type="button" class="mini-btn danger-mini" id="clear_repo_btn" data-i18n="clear_repo">پاک‌سازی</button>
+            </div>
+            <div class="repo-note" data-i18n="repo_note">برای WireGuard، هر ورودی باید IP و پورت UDP را داشته باشد؛ نمونه: 1.2.3.4:2408</div>
+          </div>
+
+          <div class="scan-control-box">
+            <div class="subpanel-head">
+              <span data-i18n="scanner_settings">تنظیمات Scanner API</span>
+              <span class="secure-dot">SECURE</span>
+            </div>
+            <div class="api-field">
+              <label for="scanner_api_url" data-i18n="scanner_api_url">آدرس Scanner API</label>
+              <input id="scanner_api_url" class="modern-input" inputmode="url" autocomplete="off" placeholder="https://YOUR-SCANNER.example/scan">
+            </div>
+            <div class="api-field">
+              <label for="scanner_api_token" data-i18n="scanner_api_token">توکن Scanner (فقط همین نشست)</label>
+              <input id="scanner_api_token" class="modern-input" type="password" autocomplete="off" placeholder="Bearer token">
+            </div>
+            <div class="api-field-row">
+              <div class="api-field">
+                <label for="scanner_timeout_ms" data-i18n="scanner_timeout">Timeout (ms)</label>
+                <input id="scanner_timeout_ms" class="modern-input" type="number" min="500" max="8000" value="1800">
+              </div>
+              <div class="api-field">
+                <label for="scanner_limit" data-i18n="scanner_limit">حداکثر Endpoint</label>
+                <input id="scanner_limit" class="modern-input" type="number" min="1" max="50" value="25">
+              </div>
+            </div>
+            <div class="inline-actions">
+              <button type="button" class="mini-btn" id="save_scanner_btn" data-i18n="save_scanner">ذخیره تنظیمات</button>
+              <button type="button" class="mini-btn scan-main-btn" id="scan_wg_btn" data-i18n="start_scan">شروع اسکن</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="scanner-progress-wrap">
+          <div class="scanner-progress-track"><div id="scanner_progress_bar" class="scanner-progress-bar"></div></div>
+          <div class="scanner-progress-meta">
+            <span id="scanner_progress_text">READY</span>
+            <span id="scanner_elapsed_text">0 ms</span>
+          </div>
+        </div>
+
+        <div id="scanner_results" class="scanner-results"></div>
+      </div>
+
+      <div class="toolkit-panel about-panel">
+        <div class="toolkit-head">
+          <div>
+            <span class="panel-eyebrow">ABOUT / CREATOR</span>
+            <h2 data-i18n="about_title">درباره ALIRAHIMI</h2>
+          </div>
+          <div class="creator-mark">AR</div>
+        </div>
+        <div class="about-copy" dir="rtl">
+          <p><strong>ALIRAHIMI — مهندس و سازندهٔ این پروژه</strong></p>
+          <p data-i18n="about_copy">ALIRAHIMI WireGuard Studio یک ابزار مستقل برای ساخت، پاک‌سازی و شخصی‌سازی کانفیگ‌های WireGuard است. پروژه به‌طور خاص روی خروجی استاندارد WireGuard، انتخاب Endpointهای IP:PORT، مدیریت مخزن Endpoint و مقایسهٔ تأخیر تمرکز دارد.</p>
+          <div class="about-capabilities">
+            <div class="cap-item"><span>01</span><b data-i18n="cap_1">ساخت فایل .conf استاندارد</b></div>
+            <div class="cap-item"><span>02</span><b data-i18n="cap_2">انتخاب Endpoint از مخزن</b></div>
+            <div class="cap-item"><span>03</span><b data-i18n="cap_3">اسکن RTT و Handshake با API</b></div>
+            <div class="cap-item"><span>04</span><b data-i18n="cap_4">اتصال به WARP API شخصی</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolkit-panel warp-api-panel">
+        <div class="toolkit-head">
+          <div>
+            <span class="panel-eyebrow">PRIVATE WARP API</span>
+            <h2 data-i18n="warp_api_title">اتصال به WARP API خودت</h2>
+          </div>
+          <span id="warp_api_status_badge" class="status-badge">NOT CONFIGURED</span>
+        </div>
+        <div class="warp-api-copy" dir="rtl" data-i18n="warp_api_copy">چهار API عمومی قبلی حذف شده‌اند. فقط آدرس Worker شخصی خودت را وارد کن؛ یک Worker برای کارکرد سایت کافی است.</div>
+        <div class="custom-inputs" style="margin-top:.7rem;">
+          <div class="input-group" style="width:100%;">
+            <label class="input-label" for="warp_api_url" data-i18n="warp_api_url_label">آدرس Worker WARP</label>
+            <input id="warp_api_url" class="modern-input" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://YOUR-WORKER.workers.dev/register">
+          </div>
+        </div>
+        <div class="custom-inputs-row" style="margin-top:.7rem;">
+          <div class="input-group" style="width:100%;">
+            <label class="input-label" for="warp_api_access_token" data-i18n="warp_api_access_token">کلید دسترسی Worker (اختیاری/فقط همین نشست)</label>
+            <input id="warp_api_access_token" class="modern-input" type="password" autocomplete="off" spellcheck="false" placeholder="X-ALIRAHIMI-API-KEY">
+          </div>
+        </div>
+        <div class="inline-actions">
+          <button type="button" class="mini-btn scan-main-btn" id="save_warp_api_btn" data-i18n="save_warp_api">ذخیره WARP API</button>
+          <button type="button" class="mini-btn" id="clear_warp_api_btn" data-i18n="clear_warp_api">حذف آدرس‌ها</button>
+        </div>
+        <div class="api-safety-note" dir="rtl" data-i18n="warp_api_note">توکن Cloudflare Dashboard را داخل این فایل نگذار. برای مصرف‌کنندهٔ WARP، Worker شخصیِ بخش API در ZIP همراه پروژه قرار داده شده است؛ API Token مربوط به Cloudflare One با WARP مصرف‌کننده یکی نیست.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALIRAHIMI signature footer: no external social links -->
+  <footer class="footer-container alirihimi-footer">
+    <div class="credit-text">ALIRAHIMI // ENGINEERED WIREGUARD LAB</div>
+  </footer>
+
+  <script>
+    // ── Javascript Logic ─────────────────────────────────────── */
+    const EXTENDED_WG_KEYS = ['jc', 'jmin', 'jmax', 's1', 's2', 'h1', 'h2', 'h3', 'h4'];
+    const EXTENDED_WG_15_KEYS = ['i1', 'i2', 'i3', 'i4', 'i5'];
+
+    const LANG_PACKS = {
+      fa: {
+        section_configuration: "ساخت و خروجی کانفیگ",
+        convert: "ساخت کانفیگ",
+        converted_placeholder: "کانفیگ ساخته شده اینجا نمایش داده می‌شود...",
+        advanced_settings: "تنظیمات پیشرفته WireGuard",
+        junk_packet_settings: "پارامترهای پیشرفتهٔ ترافیک",
+        enable_15: "پارامترهای Extended I1-I5",
+        light_option: "سبک",
+        heavy_option: "سنگین",
+        custom_settings: "دلخواه",
+        generate_random: "تولید مقادیر تصادفی",
+        extended_params: "پارامترهای Extended I1-I5",
+        fetching_warp: "در حال دریافت و تحلیل کانفیگ...",
+        warp_fetched: "کانفیگ WireGuard با موفقیت ساخته شد!",
+        fetch_warp: "ساخت کانفیگ استاندارد WireGuard",
+        config_copied: "کانفیگ کپی شد!",
+        nothing_to_copy: "چیزی برای کپی کردن وجود ندارد.",
+        select_ip_placeholder: "-- انتخاب Endpoint --",
+        loading_ips: "در حال دریافت Endpointها...",
+        header_intro: "ساخت کانفیگ WireGuard، انتخاب Endpoint و اسکن مسیرهای مناسب در یک محیط سریع و امن.",
+        extended_mode: "حالت پیشرفتهٔ توسعه‌یافته (فقط برای کلاینت‌های سازگار)",
+        standard_mode_hint: "حالت استاندارد، خروجی کاملاً سازگار با برنامهٔ رسمی WireGuard تولید می‌کند.",
+        config_name: "نام کانفیگ / نام کاربر",
+        config_name_placeholder: "مثلاً ALIRAHIMI-USER1",
+        config_name_note: "این نام در نام فایل و Comment کانفیگ ثبت می‌شود و به‌عنوان گزینه ناشناخته وارد [Interface] نمی‌شود.",
+        scanner_title: "مخزن و اسکنر Endpoint وایرگارد",
+        repo_title: "مخزن IP:PORT",
+        import_repo: "ورود TXT",
+        save_repo: "ذخیره مخزن",
+        clear_repo: "پاک‌سازی",
+        repo_note: "هر خط یک Endpoint باشد؛ نمونه: 1.2.3.4:2408. برای اسکن واقعی UDP از Scanner API خودت استفاده کن.",
+        scanner_settings: "تنظیمات Scanner API",
+        scanner_api_url: "آدرس Scanner API",
+        scanner_api_token: "توکن Scanner (فقط همین نشست)",
+        scanner_timeout: "Timeout (ms)",
+        scanner_limit: "حداکثر Endpoint",
+        save_scanner: "ذخیره تنظیمات",
+        start_scan: "شروع اسکن",
+        about_title: "درباره ALIRAHIMI",
+        about_copy: "ALIRAHIMI WireGuard Studio یک ابزار مستقل برای ساخت، پاک‌سازی و شخصی‌سازی کانفیگ‌های WireGuard است. پروژه روی خروجی استاندارد WireGuard، انتخاب Endpointهای IP:PORT، مدیریت مخزن Endpoint و مقایسهٔ تأخیر تمرکز دارد.",
+        cap_1: "ساخت فایل .conf استاندارد",
+        cap_2: "انتخاب Endpoint از مخزن",
+        cap_3: "اسکن RTT و Handshake با API",
+        cap_4: "اتصال به WARP API شخصی",
+        warp_api_title: "اتصال به WARP Worker خودت",
+        warp_api_copy: "فقط آدرس Worker شخصی خودت را وارد کن. سایت استاتیک روی GitHub می‌ماند و برای ساخت کانفیگ فقط به همین Worker درخواست می‌فرستد.",
+        warp_api_url_label: "آدرس Worker WARP",
+        save_warp_api: "ذخیره Worker",
+        warp_api_access_token: "کلید دسترسی Worker (اختیاری/فقط همین نشست)",
+        clear_warp_api: "پاک کردن",
+        warp_api_note: "توکن Cloudflare Dashboard را داخل index.html نگذار. Worker می‌تواند Secretهای WARP را در Cloudflare نگه دارد. اگر ALIRAHIMI_API_KEY در Worker تنظیم شده باشد، همان کلید را فقط در همین نشست وارد کن."
+      },
+      en: {
+        section_configuration: "Generate & Output",
+        convert: "Generate Config",
+        converted_placeholder: "Generated configuration will appear here...",
+        advanced_settings: "WireGuard Advanced Settings",
+        junk_packet_settings: "Extended Traffic Parameters",
+        enable_15: "Extended I1-I5 Parameters",
+        light_option: "Light",
+        heavy_option: "Heavy",
+        custom_settings: "Custom",
+        generate_random: "Generate Random Settings",
+        extended_params: "Extended I1-I5 Parameters",
+        fetching_warp: "Fetching and normalizing configuration...",
+        warp_fetched: "WireGuard configuration generated successfully!",
+        fetch_warp: "Generate Standard WireGuard Config",
+        config_copied: "Configuration copied!",
+        nothing_to_copy: "Nothing to copy!",
+        select_ip_placeholder: "-- Select Endpoint --",
+        loading_ips: "Loading endpoints...",
+        header_intro: "Build WireGuard configs, choose endpoints and compare routes in a fast, hardened workspace.",
+        extended_mode: "Extended output mode (only for compatible clients)",
+        standard_mode_hint: "Standard mode generates output compatible with the official WireGuard app.",
+        config_name: "Config name / username",
+        config_name_placeholder: "e.g. ALIRAHIMI-USER1",
+        config_name_note: "The name is used for the .conf filename and as a comment; it is never emitted as an unknown [Interface] attribute.",
+        scanner_title: "WireGuard Endpoint Repository & Scanner",
+        repo_title: "IP:PORT Repository",
+        import_repo: "Import TXT",
+        save_repo: "Save Repository",
+        clear_repo: "Clear",
+        repo_note: "Use one IP:PORT endpoint per line. Real UDP scanning requires your own Scanner API.",
+        scanner_settings: "Scanner API Settings",
+        scanner_api_url: "Scanner API URL",
+        scanner_api_token: "Scanner token (session only)",
+        scanner_timeout: "Timeout (ms)",
+        scanner_limit: "Max endpoints",
+        save_scanner: "Save Settings",
+        start_scan: "Start Scan",
+        about_title: "About ALIRAHIMI",
+        about_copy: "ALIRAHIMI WireGuard Studio is an independent tool for building, sanitizing and customizing WireGuard configs, with a focus on standard .conf output, IP:PORT repositories and endpoint latency comparison.",
+        cap_1: "Generate standard .conf files",
+        cap_2: "Select endpoints from a repository",
+        cap_3: "Scan RTT and handshake via API",
+        cap_4: "Connect to a personal WARP API",
+        warp_api_title: "Connect Your Own WARP API",
+        warp_api_copy: "The previous four public APIs are removed. Add one or more Worker URLs that you control; the page only sends requests to those URLs.",
+        save_warp_api: "Save WARP API",
+        warp_api_access_token: "Worker access key (optional/session only)",
+        clear_warp_api: "Clear URLs",
+        warp_api_note: "Do not put a Cloudflare dashboard token in this HTML. The ZIP includes a personal WARP Worker template; Cloudflare One API tokens are a different API surface."
+      }
+    };
+
+    let proxyList = [];
+    let currentLang = localStorage.getItem("lang") || "fa";
+
+    const getById = (id) => document.getElementById(id);
+    const getBySelector = (selector) => document.querySelector(selector);
+    const getAllBySelector = (selector) => document.querySelectorAll(selector);
+
+    const elements = {
+      yamlOutput: getById('yamlOutput'),
+      downloadBtn: getById('downloadBtn'),
+      copyBtn: getById('copyBtn')
+    };
+
+    
+    const STORAGE_KEYS = {
+      warpTokenSession: 'alirihimi_warp_api_token_v1',
+      repo: 'alirihimi_wg_repo_v1',
+      scannerUrl: 'alirihimi_scanner_url_v1',
+      scannerTimeout: 'alirihimi_scanner_timeout_v1',
+      scannerLimit: 'alirihimi_scanner_limit_v1',
+      warpUrl: 'alirihimi_warp_url_v2'
+    };
+
+    function safeJsonParse(value, fallback = null) {
+      try { return JSON.parse(value); } catch { return fallback; }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    function parseEndpointValue(raw) {
+      let value = String(raw ?? '').trim();
+      if (!value || value.startsWith('#')) return null;
+      value = value.replace(/^udp:\/\//i, '').trim();
+      let host = '', port = '';
+      if (value.startsWith('[')) {
+        const close = value.indexOf(']');
+        if (close === -1) return null;
+        host = value.slice(1, close);
+        port = value.slice(close + 1).replace(/^:/, '');
+      } else {
+        const idx = value.lastIndexOf(':');
+        if (idx > 0 && /^\d+$/.test(value.slice(idx + 1))) {
+          host = value.slice(0, idx);
+          port = value.slice(idx + 1);
+        } else {
+          host = value;
+          port = '2408';
+        }
+      }
+      host = host.trim();
+      const portNum = Number(port);
+      if (!host || !Number.isInteger(portNum) || portNum < 1 || portNum > 65535) return null;
+      return { host, port: portNum, endpoint: host.includes(':') ? `[${host}]:${portNum}` : `${host}:${portNum}` };
+    }
+
+    function normalizeEndpointRepo(text) {
+      const raw = String(text ?? '').split(/\r?\n/);
+      const seen = new Set();
+      const out = [];
+      for (const line of raw) {
+        const parsed = parseEndpointValue(line);
+        if (!parsed || seen.has(parsed.endpoint)) continue;
+        seen.add(parsed.endpoint);
+        out.push(parsed.endpoint);
+        if (out.length >= 5000) break;
+      }
+      return out;
+    }
+
+    function setScannerStatus(text, tone='') {
+      const badge = getById('scanner_status_badge');
+      if (!badge) return;
+      badge.textContent = text;
+      badge.style.color = tone === 'ok' ? 'var(--accent-pub)' : tone === 'bad' ? '#ff718f' : 'var(--status-text)';
+      badge.style.borderColor = tone === 'ok' ? 'var(--border-accent-pub)' : tone === 'bad' ? 'rgba(255,113,143,.3)' : 'var(--status-border)';
+    }
+
+    function renderRepoCount(count) {
+      const el = getById('repo_count');
+      if (el) el.textContent = String(count);
+    }
+
+    function persistRepoFromInput() {
+      const repo = normalizeEndpointRepo(getById('wg_ip_repo_input')?.value || '');
+      try { localStorage.setItem(STORAGE_KEYS.repo, JSON.stringify(repo)); } catch {}
+      if (getById('wg_ip_repo_input')) getById('wg_ip_repo_input').value = repo.join('\n');
+      renderRepoCount(repo.length);
+      return repo;
+    }
+
+    async function loadEndpointRepository(force=false) {
+      const input = getById('wg_ip_repo_input');
+      if (!input) return [];
+      if (!force) {
+        const local = safeJsonParse(localStorage.getItem(STORAGE_KEYS.repo) || 'null', null);
+        if (Array.isArray(local) && local.length) {
+          input.value = normalizeEndpointRepo(local.join('\n')).join('\n');
+          renderRepoCount(normalizeEndpointRepo(input.value).length);
+          populateIPBox(normalizeEndpointRepo(input.value));
+          return normalizeEndpointRepo(input.value);
+        }
+      }
+      for (const path of ['WG-IP.txt','IP.txt']) {
+        try {
+          const response = await fetch(path, { cache: 'no-store', credentials: 'omit' });
+          if (!response.ok) continue;
+          const content = await response.text();
+          const repo = normalizeEndpointRepo(content);
+          if (repo.length) {
+            input.value = repo.join('\n');
+            try { localStorage.setItem(STORAGE_KEYS.repo, JSON.stringify(repo)); } catch {}
+            renderRepoCount(repo.length);
+            populateIPBox(repo);
+            return repo;
+          }
+        } catch {}
+      }
+      renderRepoCount(normalizeEndpointRepo(input.value).length);
+      populateIPBox(normalizeEndpointRepo(input.value));
+      return normalizeEndpointRepo(input.value);
+    }
+
+    function populateIPBox(ips) {
+      const listContainer = getById('endpoint_list_box');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+      if (!ips || ips.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'endpoint-item';
+        empty.textContent = currentLang === 'fa' ? 'مخزن Endpoint خالی است؛ از بخش اسکنر یا TXT آن را پر کنید.' : 'Endpoint repository is empty.';
+        listContainer.appendChild(empty);
+        const genBtn = getById('main_gen_btn');
+        if (genBtn) genBtn.disabled = false;
+        return;
+      }
+      ips.slice(0, 500).forEach((endpoint, index) => {
+        const item = document.createElement('div');
+        item.className = 'endpoint-item';
+        item.setAttribute('data-ip', endpoint);
+        if (index === 0 && !getById('custom_endpoint')?.value.trim()) {
+          item.classList.add('selected');
+          getById('custom_endpoint').value = endpoint;
+        }
+        item.onclick = () => {
+          getAllBySelector('.endpoint-item').forEach(el => el.classList.remove('selected'));
+          item.classList.add('selected');
+          const box = getById('custom_endpoint');
+          if (box) box.value = endpoint;
+        };
+        const ipSpan = document.createElement('span');
+        ipSpan.className = 'endpoint-ip';
+        ipSpan.textContent = endpoint;
+        const tickSpan = document.createElement('span');
+        tickSpan.className = 'endpoint-tick';
+        tickSpan.textContent = '✓';
+        item.append(ipSpan, tickSpan);
+        listContainer.appendChild(item);
+      });
+      const genBtn = getById('main_gen_btn');
+      if (genBtn) genBtn.disabled = false;
+    }
+
+    function loadScannerSettings() {
+      const url = localStorage.getItem(STORAGE_KEYS.scannerUrl) || '';
+      const timeout = localStorage.getItem(STORAGE_KEYS.scannerTimeout) || '1800';
+      const limit = localStorage.getItem(STORAGE_KEYS.scannerLimit) || '25';
+      const u = getById('scanner_api_url');
+      const t = getById('scanner_timeout_ms');
+      const l = getById('scanner_limit');
+      if (u) u.value = url;
+      if (t) t.value = timeout;
+      if (l) l.value = limit;
+      const sessionToken = sessionStorage.getItem('alirihimi_scanner_token_v1') || '';
+      const tokenBox = getById('scanner_api_token');
+      if (tokenBox) tokenBox.value = sessionToken;
+    }
+
+    function saveScannerSettings() {
+      const url = (getById('scanner_api_url')?.value || '').trim();
+      if (url) {
+        try {
+          const parsed = new URL(url);
+          if (parsed.protocol !== 'https:') throw new Error('https required');
+          localStorage.setItem(STORAGE_KEYS.scannerUrl, parsed.toString().replace(/\/$/, ''));
+        } catch {
+          showNotification(currentLang === 'fa' ? 'آدرس Scanner API باید HTTPS باشد.' : 'Scanner API URL must use HTTPS.', 'error');
+          return false;
+        }
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.scannerUrl);
+      }
+      const timeout = Math.min(8000, Math.max(500, Number(getById('scanner_timeout_ms')?.value || 1800)));
+      const limit = Math.min(50, Math.max(1, Number(getById('scanner_limit')?.value || 25)));
+      localStorage.setItem(STORAGE_KEYS.scannerTimeout, String(timeout));
+      localStorage.setItem(STORAGE_KEYS.scannerLimit, String(limit));
+      const token = getById('scanner_api_token')?.value || '';
+      try {
+        if (token) sessionStorage.setItem('alirihimi_scanner_token_v1', token);
+        else sessionStorage.removeItem('alirihimi_scanner_token_v1');
+      } catch {}
+      showNotification(currentLang === 'fa' ? 'تنظیمات Scanner ذخیره شد.' : 'Scanner settings saved.', 'success');
+      return true;
+    }
+
+    function normalizeWarpWorkerUrl(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      try {
+        const u = new URL(raw);
+        if (u.protocol !== 'https:') throw new Error('HTTPS required');
+        if (u.username || u.password) throw new Error('Credentials not allowed');
+        u.hash = ''; u.search = '';
+        const cleanPath = u.pathname.replace(/\/+$/, '');
+        u.pathname = cleanPath && cleanPath !== '/register' ? cleanPath + '/register' : (cleanPath === '/register' ? '/register' : '/register');
+        return u.toString();
+      } catch { return ''; }
+    }
+
+    function loadWarpApiSettings() {
+      const url = localStorage.getItem(STORAGE_KEYS.warpUrl) || '';
+      const box = getById('warp_api_url');
+      if (!box) return;
+      box.value = url;
+      const tokenBox=getById('warp_api_access_token');
+      if (tokenBox) tokenBox.value=sessionStorage.getItem(STORAGE_KEYS.warpTokenSession)||'';
+      updateWarpApiStatus(url ? 1 : 0);
+    }
+
+    function getWarpApiUrls() {
+      const normalized = normalizeWarpWorkerUrl(getById('warp_api_url')?.value || '');
+      return normalized ? [normalized] : [];
+    }
+
+    function updateWarpApiStatus(count) {
+      const badge=getById('warp_api_status_badge');
+      if (!badge) return;
+      badge.textContent=count ? '1 ACTIVE' : 'NOT CONFIGURED';
+      badge.style.color=count ? 'var(--accent-pub)' : 'var(--status-text)';
+      badge.style.borderColor=count ? 'var(--border-accent-pub)' : 'var(--status-border)';
+    }
+
+    function saveWarpApiSettings() {
+      const url = normalizeWarpWorkerUrl(getById('warp_api_url')?.value || '');
+      if (!url) {
+        showNotification(currentLang === 'fa' ? 'آدرس Worker معتبر نیست. فقط HTTPS وارد کن.' : 'Invalid Worker URL. Use HTTPS.', 'error');
+        return false;
+      }
+      localStorage.setItem(STORAGE_KEYS.warpUrl, url);
+      const box = getById('warp_api_url'); if (box) box.value = url;
+      const token=(getById('warp_api_access_token')?.value||'').trim();
+      if (token) sessionStorage.setItem(STORAGE_KEYS.warpTokenSession,token); else sessionStorage.removeItem(STORAGE_KEYS.warpTokenSession);
+      updateWarpApiStatus(1);
+      showNotification(currentLang === 'fa' ? 'Worker WARP ذخیره شد.' : 'WARP Worker saved.', 'success');
+      return true;
+    }
+
+    function clearWarpApiSettings() {
+      localStorage.removeItem(STORAGE_KEYS.warpUrl);
+      sessionStorage.removeItem(STORAGE_KEYS.warpTokenSession);
+      const box=getById('warp_api_url'); if (box) box.value='';
+      const tokenBox=getById('warp_api_access_token'); if (tokenBox) tokenBox.value='';
+      updateWarpApiStatus(0);
+    }
+
+    async function generateBrowserWireGuardKeyPair() {
+      if (!crypto?.subtle) throw new Error('WEBCRYPTO_UNAVAILABLE');
+      const pair=await crypto.subtle.generateKey({name:'X25519'},true,['deriveBits']);
+      const privateJwk=await crypto.subtle.exportKey('jwk',pair.privateKey);
+      const publicRaw=new Uint8Array(await crypto.subtle.exportKey('raw',pair.publicKey));
+      if (!privateJwk.d || publicRaw.byteLength!==32) throw new Error('X25519_EXPORT_FAILED');
+      return { privateKey:base64UrlToBase64(privateJwk.d), publicKey:bytesToBase64(publicRaw) };
+    }
+
+    async function fetchFromAPIs() {
+      const endpoints=getWarpApiUrls();
+      if (!endpoints.length) throw new Error('NO_WARP_API');
+      let keyPair=null;
+      try { keyPair=await generateBrowserWireGuardKeyPair(); } catch (e) { keyPair=null; }
+      const shuffled=[...endpoints].sort(()=>Math.random()-0.5);
+      let lastError=null;
+      for (const url of shuffled) {
+        const controller=new AbortController();
+        const timeoutId=setTimeout(()=>controller.abort(),12000);
+        try {
+          const headers={'Accept':'application/json','Content-Type':'application/json'};
+          const apiToken=sessionStorage.getItem(STORAGE_KEYS.warpTokenSession)||'';
+          if (apiToken) headers['X-ALIRAHIMI-API-KEY']=apiToken;
+          const response=await fetch(url,{method:'POST',headers,body:JSON.stringify({type:'Android',locale:'en_US',client:'ALIRAHIMI-WG',public_key:keyPair?.publicKey||''}),signal:controller.signal,credentials:'omit',cache:'no-store'});
+          if (!response.ok) throw new Error(`HTTP_${response.status}`);
+          const raw=await readTextWithLimit(response);
+          let parsed=null;
+          try { parsed=JSON.parse(raw); } catch {}
+          let configText=parsed ? (typeof parsed.config==='string' ? parsed.config : buildConfigTextFromWarpPayload(parsed)) : raw;
+          if (!configText || !configText.includes('[Interface]')) throw new Error('INVALID_WARP_PAYLOAD');
+          if (keyPair) {
+            const parsedConfig=parseWGConfig(configText);
+            if (keyPair.privateKey) {
+              parsedConfig.interface.privatekey=keyPair.privateKey;
+              configText=generateStandardWGConfig({
+                private_key:keyPair.privateKey,
+                ip:parsedConfig.interface.address||'',
+                dns:parsedConfig.interface.dns||[],
+                mtu:Number(parsedConfig.interface.mtu)||1280,
+                public_key:parsedConfig.peers?.[0]?.publickey||parsedConfig.peers?.[0]?.public_key||'',
+                preshared_key:parsedConfig.peers?.[0]?.presharedKey,
+                allowed_ips:String(parsedConfig.peers?.[0]?.allowedips||'0.0.0.0/0, ::/0').split(',').map(v=>v.trim()).filter(Boolean),
+                server:parseEndpointValue(parsedConfig.peers?.[0]?.endpoint||'')?.host,
+                port:parseEndpointValue(parsedConfig.peers?.[0]?.endpoint||'')?.port,
+                persistent_keepalive:parsedConfig.peers?.[0]?.persistentkeepalive||''
+              });
+            }
+          }
+          return {parsedJson:parsed,configText,keyPair};
+        } catch (e) { lastError=e; }
+        finally { clearTimeout(timeoutId); }
+      }
+      throw lastError || new Error('All WARP APIs failed');
+    }
+
+    // Futuristic Cyberpunk Toast Notifications
+    function showNotification(message, type = 'success') {
+      document.querySelectorAll('.notification').forEach(el => el.remove());
+
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      if (currentLang === 'fa') {
+        notification.classList.add('rtl-text');
+      }
+
+      notification.textContent = message;
+      
+      const isDark = document.body.classList.contains('dark');
+      
+      // Cyberpunk glowing configurations for toasts
+      const styleConfig = {
+        success: {
+          bg: isDark ? 'rgba(6, 78, 59, 0.85)' : 'rgba(209, 250, 229, 0.95)',
+          border: isDark ? '#10b981' : '#059669',
+          shadow: isDark ? '0 0 15px rgba(16, 185, 129, 0.4)' : '0 4px 12px rgba(5, 150, 105, 0.15)',
+          text: isDark ? '#34d399' : '#065f46'
+        },
+        error: {
+          bg: isDark ? 'rgba(127, 29, 29, 0.85)' : 'rgba(254, 226, 226, 0.95)',
+          border: isDark ? '#ef4444' : '#dc2626',
+          shadow: isDark ? '0 0 15px rgba(239, 68, 68, 0.4)' : '0 4px 12px rgba(220, 38, 38, 0.15)',
+          text: isDark ? '#f87171' : '#991b1b'
+        },
+        info: {
+          bg: isDark ? 'rgba(30, 58, 138, 0.85)' : 'rgba(219, 234, 254, 0.95)',
+          border: isDark ? '#3b82f6' : '#2563eb',
+          shadow: isDark ? '0 0 15px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(37, 99, 235, 0.15)',
+          text: isDark ? '#60a5fa' : '#1e40af'
+        }
+      };
+      
+      const currentStyle = styleConfig[type] || styleConfig.success;
+
+      Object.assign(notification.style, {
+        position: 'fixed',
+        top: '25px',
+        right: currentLang === 'fa' ? 'auto' : '25px',
+        left: currentLang === 'fa' ? '25px' : 'auto',
+        padding: '0.85rem 1.5rem',
+        color: currentStyle.text,
+        fontWeight: '700',
+        fontSize: '13px',
+        letterSpacing: '0.5px',
+        zIndex: '10000',
+        opacity: '0',
+        transform: 'translateY(-20px)',
+        transition: 'all 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+        backdropFilter: 'blur(12px)',
+        backgroundColor: currentStyle.bg,
+        border: `1px solid ${currentStyle.border}`,
+        boxShadow: currentStyle.shadow,
+        borderRadius: '4px',
+        fontFamily: "'Share Tech Mono', monospace"
+      });
+
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateY(0)';
+      }, 10);
+
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+      // Endpoint repository is cached locally and populated from WG-IP.txt / IP.txt.
+    async function fetchEndpointIPs(force=false) {
+      return loadEndpointRepository(force);
+    }
+
+    function sanitizeConfigName(value) {
+      const raw = String(value || '').replace(/[\r\n\u0000-\u001F\u007F]/g, '').trim();
+      const safe = raw.replace(/[<>:"/\\|?*]/g, '-').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^[-.]+|[-.]+$/g, '');
+      return (safe || 'ALIRAHIMI-WireGuard').slice(0, 64);
+    }
+
+    function generateFormattedFileName(configName) {
+      const base = sanitizeConfigName(configName);
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2,'0');
+      const day = String(now.getDate()).padStart(2,'0');
+      const hours = String(now.getHours()).padStart(2,'0');
+      const minutes = String(now.getMinutes()).padStart(2,'0');
+      return `${base}-${year}-${month}-${day}_${hours}-${minutes}.conf`;
+    }
+
+    async function generateConfig() {
+      const genBtn = getById('main_gen_btn');
+      const genTextSpan = getById('gen_btn_inner_text');
+      const refreshIconContainer = genBtn.querySelector('.refresh-icon');
+      try {
+        genBtn.classList.add('generating');
+        genBtn.disabled = true;
+        refreshIconContainer.innerHTML = '<span class="cyber-spinner"></span>';
+        genTextSpan.textContent = currentLang === 'fa' ? 'در حال ساخت کانفیگ...' : 'Generating Config...';
+        showNotification(LANG_PACKS[currentLang]['fetching_warp'], 'info');
+
+        const configName = sanitizeConfigName(getById('config_name')?.value || 'ALIRAHIMI-WireGuard');
+        if (getById('config_name')) getById('config_name').value = configName;
+        const customEndpoint = getById('custom_endpoint').value.trim();
+        const customMtu = getById('custom_mtu').value.trim();
+        const { parsedJson, configText } = await fetchFromAPIs();
+        const wgConfig = parseWGConfig(configText);
+        if (!wgConfig.peers.length) throw new Error('No peer section in WARP config');
+        if (customEndpoint) {
+          if (!parseEndpointValue(customEndpoint)) throw new Error('Invalid endpoint');
+          wgConfig.peers[0].endpoint = customEndpoint;
+        }
+        const proxy = convertToProxy(wgConfig, 'ALIRAHIMI-WireGuard');
+        proxy.mtu = Math.min(1500, Math.max(576, parseInt(customMtu,10) || 1280));
+
+        const extended = !!getById('extendedOutputMode')?.checked;
+        let configOutput = extended ? generateExtendedWGConfig(proxy) : generateStandardWGConfig(proxy);
+        configOutput = `# Name = ${configName}\n${configOutput}`;
+        elements.yamlOutput.value = configOutput;
+        elements.yamlOutput.classList.add('expanded');
+        showButtons();
+        const formattedFileName = generateFormattedFileName(configName);
+        elements.downloadBtn.onclick = () => downloadYAML(configOutput, formattedFileName);
+        elements.copyBtn.onclick = () => copyToClipboard(configOutput);
+
+        if (parsedJson && (parsedJson.account_info || parsedJson.result?.account_info)) {
+          const info = parsedJson.account_info || parsedJson.result.account_info || {};
+          const list = getById('account_details_list');
+          if (list) {
+            list.textContent='';
+            const rows=[['Account ID',info.account_id],['Device ID',info.device_id],['Type',info.account_type],['License',info.license],['Created',info.created ? new Date(info.created).toLocaleString('en-US') : '—']];
+            rows.forEach(([k,v])=>{
+              const row=document.createElement('div'); row.className='api-info-row';
+              const strong=document.createElement('strong'); strong.textContent=k+':';
+              const span=document.createElement('span'); span.textContent=String(v||'—');
+              row.append(strong,document.createTextNode(' '),span); list.appendChild(row);
+            });
+            getById('account_info_container')?.classList.remove('hidden');
+          }
+        } else {
+          getById('account_info_container')?.classList.add('hidden');
+        }
+        showNotification(LANG_PACKS[currentLang]['warp_fetched'], 'success');
+      } catch (error) {
+        console.error(error);
+        let message = currentLang === 'fa'
+          ? 'ساخت کانفیگ انجام نشد.'
+          : 'Configuration generation failed.';
+        if (error?.message === 'NO_WARP_API') {
+          message = currentLang === 'fa' ? 'ابتدا WARP API شخصی خودت را در بخش پایین ثبت کن.' : 'Configure your personal WARP Worker below first.';
+        } else if (error?.message === 'Invalid endpoint') {
+          message = currentLang === 'fa' ? 'Endpoint واردشده معتبر نیست.' : 'The endpoint is invalid.';
+        }
+        showNotification(message, 'error');
+      } finally {
+        genBtn.classList.remove('generating');
+        genBtn.disabled = false;
+        refreshIconContainer.innerHTML = `
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>`;
+        genTextSpan.textContent = LANG_PACKS[currentLang]['fetch_warp'];
+      }
+    }
+
+    function generateExtendedDefaults() {
+      const selectedOption = getBySelector('input[name="junk"]:checked')?.id;
+      
+      const configs = {
+        junk1: { jc: 3, jmin: 1, jmax: 3 },
+        junk2: { jc: 5, jmin: 10, jmax: 40 },
+        junk3: {
+          jc: parseInt(getById('jc1').value) || 3,
+          jmin: parseInt(getById('jmin1').value) || 1,
+          jmax: parseInt(getById('jmax1').value) || 3
+        }
+      };
+
+      const config = configs[selectedOption] || configs.junk3;
+      
+      if (config.jmax <= config.jmin) {
+        config.jmax = config.jmin + 1;
+      }
+
+      const result = {
+        ...config,
+        s1: 0,
+        s2: 0,
+        h1: 1,
+        h2: 2,
+        h3: 3,
+        h4: 4
+      };
+
+      const isVersion15Enabled = getById('enableExtended15')?.checked;
+      if (isVersion15Enabled) {
+        result.i1 = getById('i1_1')?.value || '<b 0xc70000000108ce1bf31eec7d93360000449e227e4596ed7f75c4d35ce31880b4133107c822c6355b51f0d7c1bba96d5c210a48aca01885fed0871cfc37d59137d73b506dc013bb4a13c060ca5b04b7ae215af71e37d6e8ff1db235f9fe0c25cb8b492471054a7c8d0d6077d430d07f6e87a8699287f6e69f54263c7334a8e144a29851429bf2e350e519445172d36953e96085110ce1fb641e5efad42c0feb4711ece959b72cc4d6f3c1e83251adb572b921534f6ac4b10927167f41fe50040a75acef62f45bded67c0b45b9d655ce374589cad6f568b8475b2e8921ff98628f86ff2eb5bcce6f3ddb7dc89e37c5b5e78ddc8d93a58896e530b5f9f1448ab3b7a1d1f24a63bf981634f6183a21af310ffa52e9ddf5521561760288669de01a5f2f1a4f922e68d0592026bbe4329b654d4f5d6ace4f6a23b8560b720a5350691c0037b10acfac9726add44e7d3e880ee6f3b0d6429ff33655c297fee786bb5ac032e48d2062cd45e305e6d8d8b82bfbf0fdbc5ec09943d1ad02b0b5868ac4b24bb10255196be883562c35a713002014016b8cc5224768b3d330016cf8ed9300fe6bf39b4b19b3667cddc6e7c7ebe4437a58862606a2a66bd4184b09ab9d2cd3d3faed4d2ab71dd821422a9540c4c5fa2a9b2e6693d411a22854a8e541ed930796521f03a54254074bc4c5bca152a1723260e7d70a24d49720acc544b41359cfc252385bda7de7d05878ac0ea0343c77715e145160e6562161dfe2024846dfda3ce99068817a2418e66e4f37dea40a21251c8a034f83145071d93baadf050ca0f95dc9ce2338fb082d64fbc8faba905cec66e65c0e1f9b003c32c943381282d4ab09bef9b6813ff3ff5118623d2617867e25f0601df583c3ac51bc6303f79e68d8f8de4b8363ec9c7728b3ec5fcd5274edfca2a42f2727aa223c557afb33f5bea4f64aeb252c0150ed734d4d8eccb257824e8e090f65029a3a042a51e5cc8767408ae07d55da8507e4d009ae72c47ddb138df3cab6cc023df2532f88fb5a4c4bd917fafde0f3134be09231c389c70bc55cb95a779615e8e0a76a2b4d943aabfde0e394c985c0cb0376930f92c5b6998ef49ff4a13652b787503f55c4e3d8eebd6e1bc6db3a6d405d8405bd7a8db7cefc64d16e0d105a468f3d33d29e5744a24c4ac43ce0eb1bf6b559aed520b91108cda2de6e2c4f14bc4f4dc58712580e07d217c8cca1aaf7ac04bab3e7b1008b966f1ed4fba3fd93a0a9d3a27127e7aa587fbcc60d548300146bdc126982a58ff5342fc41a43f83a3d2722a26645bc961894e339b953e78ab395ff2fb854247ad06d446cc2944a1aefb90573115dc198f5c1efbc22bc6d7a74e41e666a643d5f85f57fde81b87ceff95353d22ae8bab11684180dd142642894d8dc34e402f802c2fd4a73508ca99124e428d67437c871dd96e506ffc39c0fc401f666b437adca41fd563cbcfd0fa22fbbf8112979c4e677fb533d981745cceed0fe96da6cc0593c430bbb71bcbf924f70b4547b0bb4d41c94a09a9ef1147935a5c75bb2f721fbd24ea6a9f5c9331187490ffa6d4e34e6bb30c2c54a0344724f01088fb2751a486f425362741664efb287bce66c4a544c96fa8b124d3c6b9eaca170c0b530799a6e878a57f402eb0016cf2689d55c76b2a91285e2273763f3afc5bc9398273f5338a06d>';
+        result.i2 = getById('i2_1')?.value || '';
+        result.i3 = getById('i3_1')?.value || '';
+        result.i4 = getById('i4_1')?.value || '';
+        result.i5 = getById('i5_1')?.value || '';
+      }
+
+      return result;
+    }
+
+    function assignWGValue(target,key,value) {
+      if (target[key] === undefined) target[key]=value;
+      else if (Array.isArray(target[key])) target[key].push(value);
+      else target[key]=[target[key],value];
+    }
+
+    function parseWGConfig(text) {
+      const config = { interface: { extendedOptions: {} }, peers: [] };
+      let currentSection = null;
+      const lines = String(text || '').split(/\r?\n/);
+      for (const line of lines) {
+        const trimmedLine=line.trim();
+        if (!trimmedLine || trimmedLine.startsWith('#') || trimmedLine.startsWith(';')) continue;
+        if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+          currentSection=trimmedLine.slice(1,-1).toLowerCase();
+          if (currentSection==='peer') config.peers.push({ extendedOptions:{} });
+          continue;
+        }
+        const equalIndex=trimmedLine.indexOf('=');
+        if (equalIndex===-1) continue;
+        const key=trimmedLine.slice(0,equalIndex).trim().toLowerCase();
+        const value=trimmedLine.slice(equalIndex+1).trim();
+        if (currentSection==='interface') {
+          if (EXTENDED_WG_KEYS.includes(key) || EXTENDED_WG_15_KEYS.includes(key)) assignWGValue(config.interface.extendedOptions,key,value);
+          else assignWGValue(config.interface,key,value);
+        } else if (currentSection==='peer' && config.peers.length) {
+          const peer=config.peers[config.peers.length-1];
+          if (EXTENDED_WG_KEYS.includes(key) || EXTENDED_WG_15_KEYS.includes(key)) assignWGValue(peer.extendedOptions,key,value);
+          else if (key==='presharedkey') assignWGValue(peer,'presharedKey',value);
+          else assignWGValue(peer,key,value);
+        }
+      }
+      return config;
+    }
+
+    function convertToProxy(wgConfig, fileName) {
+      const { interface: interfaceData, peers }=wgConfig;
+      const peerData=peers[0];
+      if (!peerData?.endpoint) throw new Error('Missing peer endpoint');
+      const ep=parseEndpointValue(Array.isArray(peerData.endpoint) ? peerData.endpoint[0] : peerData.endpoint);
+      if (!ep) throw new Error('Invalid peer endpoint');
+      const dnsRaw=interfaceData.dns;
+      const dnsList=Array.isArray(dnsRaw)
+        ? dnsRaw.flatMap(v=>String(v).split(',').map(d=>d.trim()).filter(Boolean))
+        : (dnsRaw ? String(dnsRaw).split(',').map(d=>d.trim()).filter(Boolean) : []);
+      const addressRaw=interfaceData.address;
+      const addresses=Array.isArray(addressRaw)
+        ? addressRaw.flatMap(v=>String(v).split(',').map(a=>a.trim()).filter(Boolean))
+        : String(addressRaw || interfaceData.addresses || '').split(',').map(a=>a.trim()).filter(Boolean);
+      const options=generateExtendedDefaults();
+      for (const key of [...EXTENDED_WG_15_KEYS,...EXTENDED_WG_KEYS]) {
+        if (interfaceData.extendedOptions?.[key] || peerData.extendedOptions?.[key]) {
+          options[key]=interfaceData.extendedOptions?.[key] || peerData.extendedOptions?.[key];
+        }
+      }
+      const allowedRaw=peerData.allowedips ?? peerData.allowed_ips ?? '0.0.0.0/0, ::/0';
+      const allowedIps=Array.isArray(allowedRaw)
+        ? allowedRaw.flatMap(v=>String(v).split(',').map(x=>x.trim()).filter(Boolean))
+        : String(allowedRaw).split(',').map(v=>v.trim()).filter(Boolean);
+      return {
+        name: Array.isArray(peerData.name) ? peerData.name[0] : (peerData.name || fileName),
+        originalName: Array.isArray(peerData.name) ? peerData.name[0] : (peerData.name || fileName),
+        type: 'wireguard',
+        server: ep.host,
+        port: ep.port,
+        ip: addresses,
+        private_key: Array.isArray(interfaceData.privatekey) ? interfaceData.privatekey[0] : (interfaceData.privatekey || interfaceData.private_key || ''),
+        public_key: Array.isArray(peerData.publickey) ? peerData.publickey[0] : (peerData.publickey || peerData.public_key || ''),
+        preshared_key: Array.isArray(peerData.presharedKey) ? peerData.presharedKey[0] : peerData.presharedKey,
+        allowed_ips: allowedIps,
+        persistent_keepalive: Array.isArray(peerData.persistentkeepalive) ? peerData.persistentkeepalive[0] : (peerData.persistentkeepalive || peerData.persistent_keepalive || ''),
+        udp: true,
+        mtu: 1280,
+        remote_dns_resolve: true,
+        dns: dnsList,
+        'extended-options': options
+      };
+    }
+
+    function sanitizeConfigValue(value, label) {
+      const v=String(value ?? '').trim();
+      if (!v || v.includes('\r') || v.includes('\n')) throw new Error(`Invalid ${label}`);
+      return v;
+    }
+
+    function generateStandardWGConfig(proxy) {
+      const privateKey=sanitizeConfigValue(proxy.private_key,'PrivateKey');
+      const addresses=(Array.isArray(proxy.ip)?proxy.ip:[proxy.ip]).map(v=>sanitizeConfigValue(v,'Address')).filter(Boolean);
+      const publicKey=sanitizeConfigValue(proxy.public_key,'PublicKey');
+      const endpointHost=sanitizeConfigValue(proxy.server,'Endpoint host');
+      const endpoint=`${endpointHost.includes(':') ? `[${endpointHost}]` : endpointHost}:${Number(proxy.port)}`;
+      if (!addresses.length || !Number.isInteger(Number(proxy.port)) || Number(proxy.port)<1 || Number(proxy.port)>65535) throw new Error('Invalid WireGuard endpoint/address');
+      const allowed=(Array.isArray(proxy.allowed_ips)?proxy.allowed_ips:[proxy.allowed_ips]).flatMap(v=>String(v||'').split(',').map(x=>x.trim()).filter(Boolean));
+      const lines=[
+        '# Generated by ALIRAHIMI WireGuard Studio',
+        '[Interface]',
+        `PrivateKey = ${privateKey}`,
+        ...addresses.map(a=>`Address = ${a}`)
+      ];
+      if (proxy.dns?.length) lines.push(`DNS = ${proxy.dns.map(v=>sanitizeConfigValue(v,'DNS')).join(', ')}`);
+      lines.push(`MTU = ${Math.min(1500,Math.max(576,Number(proxy.mtu)||1280))}`,'','[Peer]',`PublicKey = ${publicKey}`);
+      if (proxy.preshared_key) lines.push(`PresharedKey = ${sanitizeConfigValue(proxy.preshared_key,'PresharedKey')}`);
+      lines.push(`AllowedIPs = ${allowed.length ? allowed.join(', ') : '0.0.0.0/0, ::/0'}`,`Endpoint = ${endpoint}`);
+      if (proxy.persistent_keepalive) lines.push(`PersistentKeepalive = ${sanitizeConfigValue(proxy.persistent_keepalive,'PersistentKeepalive')}`);
+      return lines.join('\n');
+    }
+
+    function generateExtendedWGConfig(proxy) {
+      const base=generateStandardWGConfig(proxy);
+      const options=proxy['extended-options'] || {};
+      const extra=[
+        `Jc = ${options.jc || 3}`,
+        `Jmin = ${options.jmin || 1}`,
+        `Jmax = ${options.jmax || 3}`,
+        `S1 = ${options.s1 || 0}`,
+        `S2 = ${options.s2 || 0}`,
+        `H1 = ${options.h1 || 1}`,
+        `H2 = ${options.h2 || 2}`,
+        `H3 = ${options.h3 || 3}`,
+        `H4 = ${options.h4 || 4}`
+      ];
+      for (const key of ['i1','i2','i3','i4','i5']) if (options[key]) extra.push(`${key.toUpperCase()} = ${options[key]}`);
+      const parts=base.split('\n');
+      const peerStart=parts.findIndex(x=>x.trim().toLowerCase()==='[peer]');
+      if (peerStart===-1) return base;
+      parts.splice(peerStart,0,...extra);
+      return parts.join('\n');
+    }
+
+    function downloadYAML(content, fileName) {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName || 'ALIRAHIMI-WireGuard.conf';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
+
+    function copyToClipboard(text) {
+      if (!text) {
+        showNotification(LANG_PACKS[currentLang]['nothing_to_copy'], 'error');
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showNotification(LANG_PACKS[currentLang]['config_copied'], 'success');
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+
+    function showButtons() {
+      elements.downloadBtn.classList.remove('hidden');
+      elements.copyBtn.classList.remove('hidden');
+    }
+
+    function toggleLanguage() {
+      switchLanguage(currentLang === 'fa' ? 'en' : 'fa');
+    }
+
+    function switchLanguage(lang) {
+      currentLang=lang;
+      localStorage.setItem('lang',currentLang);
+      const toggleBtn=getById('lang-toggle-btn');
+      if (toggleBtn) toggleBtn.textContent=lang==='fa' ? 'En' : 'Fa';
+      translatePage(lang);
+      loadEndpointRepository(false);
+    }
+
+    function setupJunkOptionsTrigger() {
+      const radios=getAllBySelector('input[name="junk"]');
+      radios.forEach(radio=>radio.addEventListener('change',()=>{
+        const custom=getById('junk3')?.checked;
+        getById('standard-junk-inputs')?.classList.toggle('hidden',!custom);
+      }));
+    }
+
+    function toggleExtended15() {
+      const checked=getById('enableExtended15')?.checked || false;
+      getById('extended15-inputs')?.classList.toggle('hidden',!checked);
+    }
+
+    function translatePage(lang) {
+      document.body.className=`lang-${lang} `+(document.body.classList.contains('light')?'light':'dark');
+      const dict=LANG_PACKS[lang];
+      getAllBySelector('[data-i18n]').forEach(el=>{
+        const key=el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent=dict[key];
+      });
+      getAllBySelector('[data-i18n-placeholder]').forEach(el=>{
+        const key=el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder=dict[key];
+      });
+    }
+
+    async function fetchIPTargetsForScanner() {
+      const repo=persistRepoFromInput();
+      return repo;
+    }
+
+    function renderScannerResults(results) {
+      const root=getById('scanner_results');
+      if (!root) return;
+      root.textContent='';
+      if (!Array.isArray(results) || !results.length) {
+        const empty=document.createElement('div');
+        empty.className='scan-empty';
+        empty.textContent=currentLang==='fa' ? 'نتیجه‌ای دریافت نشد.' : 'No scanner results.';
+        root.appendChild(empty);
+        return;
+      }
+      const sorted=[...results].sort((a,b)=>{
+        const ah=Number.isFinite(Number(a.wg_rtt_ms)) ? Number(a.wg_rtt_ms) : Infinity;
+        const bh=Number.isFinite(Number(b.wg_rtt_ms)) ? Number(b.wg_rtt_ms) : Infinity;
+        return ah-bh;
+      });
+      sorted.forEach((item,index)=>{
+        const row=document.createElement('div'); row.className='scan-row';
+        row.title=currentLang==='fa' ? 'برای انتخاب این Endpoint کلیک کنید' : 'Click to use this endpoint';
+        const target=document.createElement('div'); target.className='scan-target'; target.textContent=item.endpoint || `${item.ip||''}:${item.port||''}`;
+        const ping=document.createElement('div'); ping.className='scan-pill '+(Number.isFinite(Number(item.wg_rtt_ms))?'ok':''); ping.textContent=Number.isFinite(Number(item.wg_rtt_ms)) ? `${Math.round(Number(item.wg_rtt_ms))}ms` : '—';
+        const hs=document.createElement('div'); hs.className='scan-pill '+(item.wg_handshake?'ok':''); hs.textContent=item.wg_handshake ? 'WG OK' : (item.error_code || '—');
+        const use=document.createElement('button'); use.type='button'; use.className='mini-btn scan-use-btn '+(index===0 && item.wg_handshake?'scan-main-btn':''); use.textContent=index===0?'BEST':'USE';
+        row.append(target,ping,hs,use);
+        const select=()=>{ const box=getById('custom_endpoint'); if (box) box.value=item.endpoint || ''; getAllBySelector('.endpoint-item').forEach(el=>el.classList.toggle('selected',el.getAttribute('data-ip')===box.value)); showNotification(currentLang==='fa'?'Endpoint اسکن‌شده انتخاب شد.':'Scanned endpoint selected.','success'); };
+        row.onclick=select; use.onclick=(e)=>{e.stopPropagation();select();};
+        root.appendChild(row);
+      });
+    }
+
+    async function runWireGuardScanner() {
+      const started=performance.now();
+      const apiUrl=(getById('scanner_api_url')?.value||'').trim();
+      if (!apiUrl) {
+        showNotification(currentLang==='fa' ? 'آدرس Scanner API را وارد کن.' : 'Enter the Scanner API URL first.','error');
+        return;
+      }
+      let parsedUrl;
+      try { parsedUrl=new URL(apiUrl); if (parsedUrl.protocol!=='https:') throw new Error(); } catch { showNotification(currentLang==='fa'?'آدرس Scanner API معتبر نیست.':'Invalid Scanner API URL.','error'); return; }
+      const repo=await fetchIPTargetsForScanner();
+      if (!repo.length) { showNotification(currentLang==='fa'?'مخزن IP:PORT خالی است.':'The IP:PORT repository is empty.','error'); return; }
+      const limit=Math.min(50,Math.max(1,Number(getById('scanner_limit')?.value||25)));
+      const targets=repo.slice(0,limit);
+      let privateKey='',peerPublicKey='',tunnelAddress='';
+      const raw=elements.yamlOutput?.value||'';
+      const parsed=parseWGConfig(raw);
+      if (parsed.peers.length) {
+        privateKey=parsed.interface.privatekey||parsed.interface.private_key||'';
+        peerPublicKey=parsed.peers[0].publickey||parsed.peers[0].public_key||'';
+        tunnelAddress=parsed.interface.address||'';
+      }
+      if (!privateKey || !peerPublicKey || !tunnelAddress) {
+        showNotification(currentLang==='fa'?'ابتدا یک کانفیگ WARP بساز تا Scanner بتواند Handshake واقعی WireGuard را بررسی کند.':'Generate a WARP config first so the scanner can perform a real WireGuard handshake check.','error');
+        return;
+      }
+
+      const timeoutMs=Math.min(8000,Math.max(500,Number(getById('scanner_timeout_ms')?.value||1800)));
+      const token=(getById('scanner_api_token')?.value||'').trim();
+      try { if (token) sessionStorage.setItem('alirihimi_scanner_token_v1',token); else sessionStorage.removeItem('alirihimi_scanner_token_v1'); } catch {}
+      const progress=getById('scanner_progress_bar'), ptext=getById('scanner_progress_text'), elapsed=getById('scanner_elapsed_text');
+      if (progress) progress.style.width='8%';
+      if (ptext) ptext.textContent='SCANNING 0/'+targets.length;
+      setScannerStatus('SCANNING');
+      const controller=new AbortController();
+      const abort=setTimeout(()=>controller.abort(),Math.max(15000,timeoutMs*targets.length+5000));
+      try {
+        const headers={'Content-Type':'application/json','Accept':'application/json'};
+        if (token) headers.Authorization='Bearer '+token;
+        const response=await fetch(parsedUrl.toString(),{
+          method:'POST',headers,
+          credentials:'omit',
+          body:JSON.stringify({
+            targets,
+            timeout_ms:timeoutMs,
+            private_key:privateKey,
+            peer_public_key:peerPublicKey,
+            tunnel_address:tunnelAddress
+          }),
+          signal:controller.signal,
+          cache:'no-store'
+        });
+        if (!response.ok) throw new Error(`HTTP_${response.status}`);
+        const data=await response.json();
+        const results=Array.isArray(data.results)?data.results:[];
+        renderScannerResults(results);
+        if (progress) progress.style.width='100%';
+        if (ptext) ptext.textContent='DONE '+results.length+'/'+targets.length;
+        if (elapsed) elapsed.textContent=Math.round(performance.now()-started)+' ms';
+        setScannerStatus('READY','ok');
+        showNotification(currentLang==='fa'?'اسکن با موفقیت تمام شد.':'Scan completed successfully.','success');
+      } catch (e) {
+        if (progress) progress.style.width='0%';
+        if (ptext) ptext.textContent='FAILED';
+        setScannerStatus('ERROR','bad');
+        if (elapsed) elapsed.textContent=Math.round(performance.now()-started)+' ms';
+        showNotification(currentLang==='fa'?'اسکنر در دسترس نیست یا درخواست رد شد.':'Scanner API unavailable or request rejected.','error');
+      } finally {
+        clearTimeout(abort);
+      }
+    }
+
+    document.getElementById('themeToggle')?.addEventListener('click',()=>{
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light');
+      translatePage(currentLang);
+    });
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      const savedTheme=localStorage.getItem('theme')||'dark';
+      document.body.classList.remove('light','dark');
+      document.body.classList.add(savedTheme);
+      loadScannerSettings();
+      if (!localStorage.getItem(STORAGE_KEYS.warpUrl)) {
+        try {
+          const legacy = JSON.parse(localStorage.getItem('alirihimi_warp_urls_v1') || '[]');
+          if (Array.isArray(legacy) && legacy[0]) localStorage.setItem(STORAGE_KEYS.warpUrl, normalizeWarpWorkerUrl(legacy[0]));
+        } catch {}
+      }
+      loadWarpApiSettings();
+      setupJunkOptionsTrigger();
+      switchLanguage(currentLang);
+
+      getById('enableExtended15')?.addEventListener('change',toggleExtended15);
+      getById('extendedOutputMode')?.addEventListener('change',()=>{
+        const enabled=getById('extendedOutputMode').checked;
+        getById('extended-mode-label')?.classList.toggle('mode-active',enabled);
+      });
+
+      getById('save_repo_btn')?.addEventListener('click',()=>{
+        persistRepoFromInput();
+        populateIPBox(normalizeEndpointRepo(getById('wg_ip_repo_input').value));
+        showNotification(currentLang==='fa'?'مخزن ذخیره شد.':'Repository saved.','success');
+      });
+      getById('clear_repo_btn')?.addEventListener('click',()=>{
+        localStorage.removeItem(STORAGE_KEYS.repo);
+        const input=getById('wg_ip_repo_input'); if (input) input.value='';
+        populateIPBox([]); renderRepoCount(0);
+      });
+      getById('wg_ip_file')?.addEventListener('change',async(e)=>{
+        const file=e.target.files?.[0];
+        if (!file) return;
+        if (file.size>128*1024) { showNotification(currentLang==='fa'?'فایل بزرگ‌تر از حد مجاز است.':'File is too large.','error'); return; }
+        try {
+          const content=await file.text();
+          const repo=normalizeEndpointRepo(content);
+          const input=getById('wg_ip_repo_input'); if (input) input.value=repo.join('\n');
+          persistRepoFromInput(); populateIPBox(repo);
+          showNotification(currentLang==='fa'?`${repo.length} Endpoint وارد شد.`:`${repo.length} endpoints imported.`,'success');
+        } catch { showNotification(currentLang==='fa'?'خواندن فایل انجام نشد.':'Failed to read file.','error'); }
+        finally { e.target.value=''; }
+      });
+      getById('save_scanner_btn')?.addEventListener('click',saveScannerSettings);
+      getById('scan_wg_btn')?.addEventListener('click',runWireGuardScanner);
+      getById('save_warp_api_btn')?.addEventListener('click',saveWarpApiSettings);
+      getById('clear_warp_api_btn')?.addEventListener('click',clearWarpApiSettings);
+
+      getById('randomJunkBtn')?.addEventListener('click',()=>{
+        const jc=getRandomInt(1,128), jmin=getRandomInt(1,1279), jmax=getRandomInt(jmin+1,1280);
+        getById('jc1').value=jc; getById('jmin1').value=jmin; getById('jmax1').value=jmax;
+      });
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.dev.vars*
+.env*
+.warp-private-key*
+.warp-registration.env*
+*.secret*
+.DS_Store
