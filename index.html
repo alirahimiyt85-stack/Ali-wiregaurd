@@ -1585,7 +1585,7 @@
         <div class="custom-inputs" style="margin-top:.7rem;">
           <div class="input-group" style="width:100%;">
             <label class="input-label" for="warp_api_url" data-i18n="warp_api_url_label">آدرس Worker WARP</label>
-            <input id="warp_api_url" class="modern-input" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://YOUR-WORKER.workers.dev/register">
+            <input id="warp_api_url" class="modern-input" inputmode="url" autocomplete="off" spellcheck="false" value="https://alirihimi-warp.workers.dev/register" placeholder="https://YOUR-WORKER.workers.dev/register">
           </div>
         </div>
         <div class="custom-inputs-row" style="margin-top:.7rem;">
@@ -1925,6 +1925,8 @@
       return true;
     }
 
+    const DEFAULT_WARP_WORKER_URL = 'https://alirihimi-warp.workers.dev/register';
+
     function normalizeWarpWorkerUrl(value) {
       const raw = String(value || '').trim();
       if (!raw) return '';
@@ -1940,17 +1942,22 @@
     }
 
     function loadWarpApiSettings() {
-      const url = localStorage.getItem(STORAGE_KEYS.warpUrl) || '';
+      const stored = localStorage.getItem(STORAGE_KEYS.warpUrl) || '';
+      const url = normalizeWarpWorkerUrl(stored) || normalizeWarpWorkerUrl(DEFAULT_WARP_WORKER_URL);
       const box = getById('warp_api_url');
       if (!box) return;
       box.value = url;
+      if (url && stored !== url) {
+        try { localStorage.setItem(STORAGE_KEYS.warpUrl, url); } catch {}
+      }
       const tokenBox=getById('warp_api_access_token');
       if (tokenBox) tokenBox.value=sessionStorage.getItem(STORAGE_KEYS.warpTokenSession)||'';
       updateWarpApiStatus(url ? 1 : 0);
     }
 
     function getWarpApiUrls() {
-      const normalized = normalizeWarpWorkerUrl(getById('warp_api_url')?.value || '');
+      const inputValue = getById('warp_api_url')?.value || '';
+      const normalized = normalizeWarpWorkerUrl(inputValue) || normalizeWarpWorkerUrl(DEFAULT_WARP_WORKER_URL);
       return normalized ? [normalized] : [];
     }
 
@@ -1978,24 +1985,186 @@
     }
 
     function clearWarpApiSettings() {
-      localStorage.removeItem(STORAGE_KEYS.warpUrl);
       sessionStorage.removeItem(STORAGE_KEYS.warpTokenSession);
-      const box=getById('warp_api_url'); if (box) box.value='';
+      const defaultUrl = normalizeWarpWorkerUrl(DEFAULT_WARP_WORKER_URL);
+      try { localStorage.setItem(STORAGE_KEYS.warpUrl, defaultUrl); } catch {}
+      const box=getById('warp_api_url'); if (box) box.value=defaultUrl;
       const tokenBox=getById('warp_api_access_token'); if (tokenBox) tokenBox.value='';
-      updateWarpApiStatus(0);
+      updateWarpApiStatus(defaultUrl ? 1 : 0);
+    }
+
+    function base64ToBytes(base64) {
+      const clean = String(base64 || '').replace(/\s+/g, '');
+      if (!clean || !/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length % 4 === 1) throw new Error('INVALID_BASE64');
+      const binary = globalThis.atob(clean);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    function bytesToBase64(bytes) {
+      const input = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < input.length; i += chunkSize) {
+        binary += String.fromCharCode(...input.subarray(i, Math.min(i + chunkSize, input.length)));
+      }
+      return globalThis.btoa(binary);
+    }
+
+    function base64UrlToBase64(value) {
+      const raw = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+      return raw + '='.repeat((4 - (raw.length % 4)) % 4);
+    }
+
+    async function readTextWithLimit(response, maxBytes = 512 * 1024) {
+      if (!response?.body?.getReader) {
+        const text = await response.text();
+        if (new TextEncoder().encode(text).byteLength > maxBytes) throw new Error('RESPONSE_TOO_LARGE');
+        return text;
+      }
+      const reader = response.body.getReader();
+      const chunks = [];
+      let total = 0;
+      try {
+        while (true) {
+          const {value, done} = await reader.read();
+          if (done) break;
+          if (value) {
+            total += value.byteLength;
+            if (total > maxBytes) {
+              try { await reader.cancel(); } catch {}
+              throw new Error('RESPONSE_TOO_LARGE');
+            }
+            chunks.push(value);
+          }
+        }
+      } finally {
+        try { reader.releaseLock(); } catch {}
+      }
+      const merged = new Uint8Array(total);
+      let offset = 0;
+      for (const chunk of chunks) {
+        merged.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      return new TextDecoder().decode(merged);
+    }
+
+    // RFC 7748 X25519 fallback. This is used when WebCrypto does not expose X25519
+    // (for example in some Android/in-app/file contexts). It keeps the private key
+    // local to the browser and produces the exact 32-byte WireGuard public key.
+    const X25519_P = (1n << 255n) - 19n;
+    const X25519_A24 = 121665n;
+    const X25519_MASK_255 = (1n << 255n) - 1n;
+
+    function x25519Mod(value) {
+      const r = value % X25519_P;
+      return r < 0n ? r + X25519_P : r;
+    }
+
+    function x25519PowMod(base, exponent) {
+      let b = x25519Mod(base);
+      let e = BigInt(exponent);
+      let result = 1n;
+      while (e > 0n) {
+        if (e & 1n) result = x25519Mod(result * b);
+        b = x25519Mod(b * b);
+        e >>= 1n;
+      }
+      return result;
+    }
+
+    function littleEndianBytesToBigInt(bytes) {
+      let value = 0n;
+      for (let i = bytes.length - 1; i >= 0; i--) value = (value << 8n) | BigInt(bytes[i]);
+      return value;
+    }
+
+    function bigIntToLittleEndianBytes(value, length = 32) {
+      let v = x25519Mod(value);
+      const out = new Uint8Array(length);
+      for (let i = 0; i < length; i++) {
+        out[i] = Number(v & 255n);
+        v >>= 8n;
+      }
+      return out;
+    }
+
+    function x25519ScalarMult(scalarBytes, uBytes) {
+      const k = new Uint8Array(scalarBytes);
+      k[0] &= 248;
+      k[31] &= 127;
+      k[31] |= 64;
+
+      const u = new Uint8Array(uBytes);
+      u[31] &= 127;
+      const x1 = littleEndianBytesToBigInt(u);
+
+      let x2 = 1n, z2 = 0n;
+      let x3 = x1, z3 = 1n;
+      let swap = 0n;
+
+      for (let t = 254; t >= 0; t--) {
+        const kt = BigInt((k[t >> 3] >> (t & 7)) & 1);
+        swap ^= kt;
+        if (swap === 1n) {
+          [x2, x3] = [x3, x2];
+          [z2, z3] = [z3, z2];
+        }
+        swap = kt;
+
+        const A = x25519Mod(x2 + z2);
+        const AA = x25519Mod(A * A);
+        const B = x25519Mod(x2 - z2);
+        const BB = x25519Mod(B * B);
+        const E = x25519Mod(AA - BB);
+        const C = x25519Mod(x3 + z3);
+        const D = x25519Mod(x3 - z3);
+        const DA = x25519Mod(D * A);
+        const CB = x25519Mod(C * B);
+        const sum = x25519Mod(DA + CB);
+        const diff = x25519Mod(DA - CB);
+
+        x3 = x25519Mod(sum * sum);
+        z3 = x25519Mod(x1 * x25519Mod(diff * diff));
+        x2 = x25519Mod(AA * BB);
+        z2 = x25519Mod(E * x25519Mod(AA + x25519Mod(X25519_A24 * E)));
+      }
+
+      if (swap === 1n) {
+        [x2, x3] = [x3, x2];
+        [z2, z3] = [z3, z2];
+      }
+
+      const z2Inverse = x25519PowMod(z2, X25519_P - 2n);
+      return bigIntToLittleEndianBytes(x25519Mod(x2 * z2Inverse), 32);
+    }
+
+    function generateX25519PureJS() {
+      if (!globalThis.crypto?.getRandomValues) throw new Error('SECURE_RANDOM_UNAVAILABLE');
+      const privateBytes = new Uint8Array(32);
+      globalThis.crypto.getRandomValues(privateBytes);
+      const basePoint = new Uint8Array(32);
+      basePoint[0] = 9;
+      const publicBytes = x25519ScalarMult(privateBytes, basePoint);
+      return { privateKey: bytesToBase64(privateBytes), publicKey: bytesToBase64(publicBytes), method: 'pure-js' };
     }
 
     async function generateBrowserWireGuardKeyPair() {
-      if (!globalThis.crypto?.subtle) throw new Error('WEBCRYPTO_UNAVAILABLE');
-      try {
-        const pair=await globalThis.crypto.subtle.generateKey({name:'X25519'},true,['deriveBits']);
-        const privateJwk=await globalThis.crypto.subtle.exportKey('jwk',pair.privateKey);
-        const publicRaw=new Uint8Array(await globalThis.crypto.subtle.exportKey('raw',pair.publicKey));
-        if (!privateJwk.d || publicRaw.byteLength!==32) throw new Error('X25519_EXPORT_FAILED');
-        return { privateKey:base64UrlToBase64(privateJwk.d), publicKey:bytesToBase64(publicRaw) };
-      } catch (error) {
-        throw new Error('X25519_UNAVAILABLE');
+      if (globalThis.crypto?.subtle) {
+        try {
+          const pair=await globalThis.crypto.subtle.generateKey({name:'X25519'},true,['deriveBits']);
+          const privateJwk=await globalThis.crypto.subtle.exportKey('jwk',pair.privateKey);
+          const publicRaw=new Uint8Array(await globalThis.crypto.subtle.exportKey('raw',pair.publicKey));
+          if (privateJwk?.d && publicRaw.byteLength === 32) {
+            return { privateKey:base64UrlToBase64(privateJwk.d), publicKey:bytesToBase64(publicRaw), method:'webcrypto' };
+          }
+        } catch (error) {
+          console.warn('WebCrypto X25519 unavailable; using RFC 7748 fallback.', error);
+        }
       }
+      return generateX25519PureJS();
     }
 
     function buildConfigTextFromWarpPayload(payload) {
@@ -2609,8 +2778,11 @@
       if (!localStorage.getItem(STORAGE_KEYS.warpUrl)) {
         try {
           const legacy = JSON.parse(localStorage.getItem('alirihimi_warp_urls_v1') || '[]');
-          if (Array.isArray(legacy) && legacy[0]) localStorage.setItem(STORAGE_KEYS.warpUrl, normalizeWarpWorkerUrl(legacy[0]));
-        } catch {}
+          const migrated = Array.isArray(legacy) && legacy[0] ? normalizeWarpWorkerUrl(legacy[0]) : '';
+          localStorage.setItem(STORAGE_KEYS.warpUrl, migrated || DEFAULT_WARP_WORKER_URL);
+        } catch {
+          try { localStorage.setItem(STORAGE_KEYS.warpUrl, DEFAULT_WARP_WORKER_URL); } catch {}
+        }
       }
       loadWarpApiSettings();
       setupJunkOptionsTrigger();
