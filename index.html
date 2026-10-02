@@ -2314,7 +2314,7 @@
     function sanitizeConfigName(value) {
       const raw = String(value || '').replace(/[\r\n\u0000-\u001F\u007F]/g, '').trim();
       const safe = raw.replace(/[<>:"/\\|?*]/g, '-').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^[-.]+|[-.]+$/g, '');
-      return (safe || 'ALIRAHIMI-WireGuard').slice(0, 64);
+      return (safe || 'ALIRAHIMI-WireGuard').replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 64);
     }
 
     function generateFormattedFileName(configName) {
@@ -2355,7 +2355,7 @@
 
         const extended = !!getById('extendedOutputMode')?.checked;
         let configOutput = extended ? generateExtendedWGConfig(proxy) : generateStandardWGConfig(proxy);
-        configOutput = `# Name = ${configName}\n${configOutput}`;
+        configOutput = `# ${configName}\n${configOutput}`;
         elements.yamlOutput.value = configOutput;
         elements.yamlOutput.classList.add('expanded');
         showButtons();
