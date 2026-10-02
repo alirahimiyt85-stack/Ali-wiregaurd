@@ -1573,7 +1573,12 @@
         </div>
       </div>
 
-      <div class="toolkit-panel warp-api-panel">
+      <div id="api_debug_panel" class="api-info-panel" style="display:block;margin-bottom:12px;">
+<div class="api-info-title">API Diagnostic</div>
+<div id="api_debug_log" style="white-space:pre-wrap;font-family:monospace;font-size:12px;direction:ltr;text-align:left;max-height:220px;overflow:auto;">Ready...</div>
+<button type="button" class="mini-btn" id="test_warp_api_btn">Test Worker Connection</button>
+</div>
+<div class="toolkit-panel warp-api-panel">
         <div class="toolkit-head">
           <div>
             <span class="panel-eyebrow">PRIVATE WARP API</span>
@@ -2185,40 +2190,42 @@
       return lines.join('\\n');
     }
 
+    function apiDebug(msg){
+      const box=getById('api_debug_log');
+      const line='['+new Date().toLocaleTimeString()+'] '+msg;
+      if(box) box.textContent += '\n'+line;
+      console.log(line);
+    }
+
     async function fetchFromAPIs() {
       const url = DEFAULT_WARP_WORKER_URL;
-      if (!url) throw new Error('NO_WARP_API');
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(()=>controller.abort(),15000);
-
-      try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {'Accept':'application/json'},
-          signal: controller.signal,
-          credentials:'omit',
-          cache:'no-store'
-        });
-
-        if (!response.ok) throw new Error(`HTTP_${response.status}`);
-
-        const raw = await readTextWithLimit(response);
-        let parsed = null;
-        try { parsed = JSON.parse(raw); } catch {}
-
-        let configText = parsed
-          ? (typeof parsed.config === 'string' ? parsed.config : buildConfigTextFromWarpPayload(parsed))
-          : raw;
-
-        if (!configText || !configText.includes('[Interface]')) {
-          throw new Error('INVALID_WARP_PAYLOAD');
-        }
-
-        return {parsedJson: parsed, configText, keyPair:null};
-      } finally {
-        clearTimeout(timeoutId);
-      }
+      apiDebug('Worker URL: '+url);
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),15000);
+      try{
+        apiDebug('Sending GET request...');
+        const response=await fetch(url,{method:'GET',headers:{'Accept':'application/json,text/plain,*/*'},cache:'no-store',credentials:'omit',signal:controller.signal});
+        apiDebug('HTTP status: '+response.status+' '+response.statusText);
+        const raw=await response.text();
+        apiDebug('Response length: '+raw.length);
+        apiDebug('Response preview: '+raw.slice(0,300));
+        if(!response.ok) throw new Error('HTTP_'+response.status);
+        let parsedJson=null;
+        let configText='';
+        try{
+          parsedJson=JSON.parse(raw);
+          configText=typeof parsedJson.config==='string'?parsedJson.config:JSON.stringify(parsedJson);
+          if(!configText.includes('[Interface]')){
+            configText=parsedJson.config || raw;
+          }
+        }catch(e){configText=raw;}
+        if(!configText || !configText.includes('[Interface]')) throw new Error('NO_WIREGUARD_CONFIG_RETURNED');
+        apiDebug('WireGuard config detected.');
+        return {parsedJson,configText,keyPair:null};
+      }catch(e){
+        apiDebug('FAILED: '+(e.message||e));
+        throw e;
+      }finally{clearTimeout(timer);}
     }
 
     // Futuristic Cyberpunk Toast Notifications
@@ -2376,7 +2383,7 @@
       } catch (error) {
         console.error(error);
         let message = currentLang === 'fa'
-          ? 'ساخت کانفیگ انجام نشد.'
+          ? 'ساخت کانفیگ انجام نشد: '+(error?.message||'UNKNOWN_ERROR')
           : 'Configuration generation failed.';
         if (error?.message === 'NO_WARP_API') {
           message = currentLang === 'fa' ? 'ابتدا WARP Worker شخصی خودت را در بخش پایین ثبت کن.' : 'Configure your personal WARP Worker below first.';
@@ -2764,6 +2771,7 @@
           try { localStorage.setItem(STORAGE_KEYS.warpUrl, DEFAULT_WARP_WORKER_URL); } catch {}
         }
       }
+      document.getElementById('test_warp_api_btn')?.addEventListener('click', async()=>{ try{ await fetchFromAPIs(); showNotification('API OK','success'); }catch(e){ showNotification('API Error: '+e.message,'error'); }});
       loadWarpApiSettings();
       setupJunkOptionsTrigger();
       switchLanguage(currentLang);
