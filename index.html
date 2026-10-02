@@ -2201,7 +2201,7 @@
       const url = DEFAULT_WARP_WORKER_URL;
       apiDebug('Worker URL: '+url);
       const controller=new AbortController();
-      const timer=setTimeout(()=>controller.abort(),20000);
+      const timer=setTimeout(()=>controller.abort('worker_timeout_90000'),90000);
       try{
         apiDebug('Generating WireGuard X25519 keypair...');
         const keyPair = await generateBrowserWireGuardKeyPair();
@@ -2219,7 +2219,7 @@
         const raw=await response.text();
         apiDebug('Response length: '+raw.length);
         apiDebug('Response preview: '+raw.slice(0,500));
-        if(!response.ok) throw new Error('HTTP_'+response.status);
+        if(!response.ok) throw new Error('HTTP_'+response.status+'_'+response.statusText);
         let parsedJson;
         try { parsedJson=JSON.parse(raw); } catch(e){ throw new Error('INVALID_JSON_RESPONSE'); }
         let configText='';
@@ -2229,7 +2229,8 @@
         apiDebug('WireGuard config detected.');
         return {parsedJson,configText,keyPair};
       }catch(e){
-        apiDebug('FAILED: '+(e.name==='AbortError'?'TIMEOUT':(e.message||e)));
+        apiDebug('FAILED: '+(e.name==='AbortError'?'TIMEOUT_OR_ABORT':(e.message||String(e))));
+        apiDebug('This error happened before config parsing. Check Worker response and browser network tab.');
         throw e;
       }finally{clearTimeout(timer);}
     }
