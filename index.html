@@ -1435,7 +1435,7 @@
                   <label class="input-label" for="config_name" data-i18n="config_name">نام کانفیگ / نام کاربر</label>
                   <input id="config_name" class="modern-input" type="text" maxlength="64" autocomplete="off" spellcheck="false"
                     placeholder="ALIRAHIMI" data-i18n-placeholder="config_name_placeholder">
-                  <div style="margin-top:.35rem;font-size:.64rem;color:var(--text-muted);text-align:right;" data-i18n="config_name_note">این نام هم در نام فایل .conf می‌آید و هم به‌صورت Comment داخل کانفیگ ثبت می‌شود؛ داخل [Interface] به‌عنوان گزینه ناشناخته قرار نمی‌گیرد.</div>
+                  <div style="margin-top:.35rem;font-size:.64rem;color:var(--text-muted);text-align:right;" data-i18n="config_name_note">این نام به‌صورت Comment داخل کانفیگ ثبت می‌شود و بخش سازگار با WireGuard برای نام فایل .conf استفاده می‌شود؛ داخل [Interface] به‌عنوان گزینه ناشناخته قرار نمی‌گیرد.</div>
                 </div>
               </div>
 
@@ -1632,7 +1632,7 @@
         standard_mode_hint: "حالت استاندارد، خروجی کاملاً سازگار با برنامهٔ رسمی WireGuard تولید می‌کند.",
         config_name: "نام کانفیگ / نام کاربر",
         config_name_placeholder: "مثلاً ALIRAHIMI-USER1",
-        config_name_note: "این نام در نام فایل و Comment کانفیگ ثبت می‌شود و به‌عنوان گزینه ناشناخته وارد [Interface] نمی‌شود.",
+        config_name_note: "این نام به‌صورت Comment کانفیگ ثبت می‌شود و نسخهٔ سازگار با WireGuard برای نام فایل استفاده می‌شود؛ به‌عنوان گزینه ناشناخته وارد [Interface] نمی‌شود.",
         scanner_title: "مخزن و اسکنر Endpoint وایرگارد",
         repo_title: "مخزن IP:PORT",
         import_repo: "ورود TXT",
@@ -1684,7 +1684,7 @@
         standard_mode_hint: "Standard mode generates output compatible with the official WireGuard app.",
         config_name: "Config name / username",
         config_name_placeholder: "e.g. ALIRAHIMI-USER1",
-        config_name_note: "The name is used for the .conf filename and as a comment; it is never emitted as an unknown [Interface] attribute.",
+        config_name_note: "The name is kept as a comment, while a WireGuard-safe filename name is used for the .conf file; it is never emitted as an unknown [Interface] attribute.",
         scanner_title: "WireGuard Endpoint Repository & Scanner",
         repo_title: "IP:PORT Repository",
         import_repo: "Import TXT",
@@ -2317,15 +2317,63 @@
       return (safe || 'ALIRAHIMI-WireGuard').replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 64);
     }
 
+    /*
+     * WireGuard for Windows derives the tunnel name from the .conf filename.
+     * Its official validator allows only [A-Za-z0-9_=+.-] and a maximum of
+     * 32 characters for the tunnel name. Keep the human-readable config name
+     * independent from the filesystem/tunnel-name limit, and guarantee that
+     * every generated filename is directly importable by the official client.
+     */
+    const WG_TUNNEL_NAME_MAX_LENGTH = 32;
+
+    function isWireGuardTunnelNameValid(name) {
+      const value = String(name ?? '');
+      if (!value || value.length > WG_TUNNEL_NAME_MAX_LENGTH) return false;
+      if (!/^[A-Za-z0-9_=+.-]{1,32}$/.test(value)) return false;
+      if (/^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(value)) return false;
+      const dotIndex = value.lastIndexOf('.');
+      if (dotIndex > 0) {
+        const stem = value.slice(0, dotIndex);
+        if (/^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(stem)) return false;
+      }
+      return !value.includes('$');
+    }
+
     function generateFormattedFileName(configName) {
-      const base = sanitizeConfigName(configName);
+      // 13-char suffix: -YYMMDDHHMMSS. This leaves 19 chars for the base,
+      // so even the default "ALIRAHIMI-WireGuard" remains intact at 32 chars.
       const now = new Date();
-      const year = now.getFullYear();
+      const year = String(now.getFullYear()).slice(-2);
       const month = String(now.getMonth() + 1).padStart(2,'0');
       const day = String(now.getDate()).padStart(2,'0');
       const hours = String(now.getHours()).padStart(2,'0');
       const minutes = String(now.getMinutes()).padStart(2,'0');
-      return `${base}-${year}-${month}-${day}_${hours}-${minutes}.conf`;
+      const seconds = String(now.getSeconds()).padStart(2,'0');
+      const suffix = `-${year}${month}${day}${hours}${minutes}${seconds}`;
+      const maxBaseLength = WG_TUNNEL_NAME_MAX_LENGTH - suffix.length;
+
+      // Re-sanitize and constrain the filename base independently of the
+      // 64-character UI field, because WireGuard validates the filename-derived
+      // tunnel name before parsing the actual configuration contents.
+      let base = sanitizeConfigName(configName)
+        .replace(/[^A-Za-z0-9_=+.-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^[-.]+|[-.]+$/g, '')
+        .slice(0, maxBaseLength)
+        .replace(/^[-.]+|[-.]+$/g, '');
+
+      if (!base) base = 'ALIRAHIMI-WG'.slice(0, maxBaseLength);
+
+      let tunnelName = `${base}${suffix}`;
+
+      // Final defense-in-depth check: the exact name that WireGuard will derive
+      // from the downloaded filename must pass its name rules.
+      if (!isWireGuardTunnelNameValid(tunnelName)) {
+        const fallbackBase = 'ALIRAHIMI-WG'.slice(0, maxBaseLength);
+        tunnelName = `${fallbackBase}${suffix}`;
+      }
+
+      return `${tunnelName}.conf`;
     }
 
     async function generateConfig() {
@@ -2580,7 +2628,20 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = fileName || 'ALIRAHIMI-WireGuard.conf';
+
+      const requestedName = String(fileName || '').trim();
+      const safeFileName = requestedName
+        .replace(/[^A-Za-z0-9_=+.-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^[-.]+|[-.]+$/g, '');
+      const safeBase = safeFileName.toLowerCase().endsWith('.conf')
+        ? safeFileName.slice(0, -5)
+        : safeFileName;
+      const finalName = safeBase && isWireGuardTunnelNameValid(safeBase)
+        ? `${safeBase}.conf`
+        : generateFormattedFileName('ALIRAHIMI-WireGuard');
+
+      link.download = finalName;
       document.body.appendChild(link);
       link.click();
       setTimeout(() => {
